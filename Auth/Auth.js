@@ -2,7 +2,52 @@ const bcrypt = require("bcryptjs");
 
 const User = require("../model/User");
 
-// auth.js
+const jwt = require("jsonwebtoken");
+const jwtSecret =
+  "03f9ac71006511a7c64670966149180e41de642f254623847fd7837f8bc7e0b22a6b33";
+
+exports.adminAuth = (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (token) {
+    jwt.verify(token, jwtSecret, (err, decodedToken) => {
+      if (err) {
+        return res.status(401).json({ message: "Not authorized" });
+      } else {
+        if (decodedToken.role !== "Admin") {
+          return res.status(401).json({ message: "Not authorized" });
+        } else {
+          next();
+        }
+      }
+    });
+  } else {
+    return res
+      .status(401)
+      .json({ message: "Not authorized, token not available" });
+  }
+};
+
+exports.userAuth = (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (token) {
+    jwt.verify(token, jwtSecret, (err, decodedToken) => {
+      if (err) {
+        return res.status(401).json({ message: "Not authorized" });
+      } else {
+        if (decodedToken.role !== "User") {
+          return res.status(401).json({ message: "Not authorized" });
+        } else {
+          next();
+        }
+      }
+    });
+  } else {
+    return res
+      .status(401)
+      .json({ message: "Not authorized, token not available" });
+  }
+};
+
 exports.register = async (req, res, next) => {
   const { username, password } = req.body;
   if (password.length < 6) {
@@ -14,12 +59,25 @@ exports.register = async (req, res, next) => {
       username,
       password: hash,
     })
-      .then((user) =>
-        res.status(200).json({
+      .then((user) => {
+        const maxAge = 3 * 60 * 60;
+        const token = jwt.sign(
+          { id: user._id, username, role: user.role },
+          jwtSecret,
+          {
+            expiresIn: maxAge, // 3hrs in sec
+          }
+        );
+        res.cookie("jwt", token, {
+          httpOnly: true,
+          maxAge: maxAge * 1000, // 3hrs in ms
+        });
+        res.status(201).json({
           message: "User successfully created",
-          user,
-        })
-      )
+          user: user._id,
+          role: user.role,
+        });
+      })
       .catch((error) =>
         res.status(400).json({
           message: "User not successful created",
@@ -46,12 +104,27 @@ exports.login = async (req, res, next) => {
     } else {
       // comparing given password with hashed password
       bcrypt.compare(password, user.password).then(function (result) {
-        result
-          ? res.status(200).json({
-              message: "Login successful",
-              user,
-            })
-          : res.status(400).json({ message: "Login not succesful" });
+        if (result) {
+          const maxAge = 3 * 60 * 60;
+          const token = jwt.sign(
+            { id: user._id, username, role: user.role },
+            jwtSecret,
+            {
+              expiresIn: maxAge, // 3hrs in sec
+            }
+          );
+          res.cookie("jwt", token, {
+            httpOnly: true,
+            maxAge: maxAge * 1000, // 3hrs in ms
+          });
+          res.status(201).json({
+            message: "User successfully Logged in",
+            user: user._id,
+            role: user.role,
+          });
+        } else {
+          res.status(400).json({ message: "Login not succesful" });
+        }
       });
     }
   } catch (error) {
@@ -110,5 +183,21 @@ exports.deleteUser = async (req, res, next) => {
       res
         .status(400)
         .json({ message: "An error occurred", error: error.message })
+    );
+};
+
+exports.getUsers = async (req, res, next) => {
+  await User.find({})
+    .then((users) => {
+      const userFunction = users.map((user) => {
+        const container = {};
+        container.username = user.username;
+        container.role = user.role;
+        return container;
+      });
+      res.status(200).json({ user: userFunction });
+    })
+    .catch((err) =>
+      res.status(401).json({ message: "Not successful", error: err.message })
     );
 };
