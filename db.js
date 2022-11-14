@@ -1,7 +1,10 @@
+//Add mongoose and set DB
 const Mongoose = require("mongoose");
-const localDB = `mongodb://localhost:27017/role_auth`;
+
+const connString = `mongodb+srv://zkarlik:SLbRvvymtTFuh65F@cluster0.d7rsfto.mongodb.net/?retryWrites=true&w=majority`;
+//const connString = `mongodb://localhost:27017/role_auth`;
 const connectDB = async () => {
-  await Mongoose.connect(localDB, {
+  await Mongoose.connect(connString, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
