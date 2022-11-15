@@ -1,7 +1,7 @@
 // user.js
 const Mongoose = require("mongoose");
 const UserSchema = new Mongoose.Schema({
-  /*firstname: {
+  firstname: {
     type: String,
     unique: false,
     required: true,
@@ -20,7 +20,7 @@ const UserSchema = new Mongoose.Schema({
     type: String,
     unique: false,
     required: true,
-  },*/
+  },
   username: {
     type: String,
     unique: true,
@@ -31,7 +31,7 @@ const UserSchema = new Mongoose.Schema({
     minlength: 6,
     required: true,
   },
-  /*lendBooks: [
+  lendBooks: [
     {
       type: Object,
       unique: false,
@@ -58,7 +58,7 @@ const UserSchema = new Mongoose.Schema({
     unique: false,
     required: false,
     default: false,
-  },*/
+  },
   role: {
     type: String,
     default: "User",

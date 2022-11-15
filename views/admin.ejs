@@ -19,7 +19,23 @@
         const data = await res.json();
         data.user.map((mappedUser) => {
           if (mappedUser.username !== "Admin") {
-            let li = `<li> <b>Username</b> => ${mappedUser.username} <br> <b>Role</b> => ${mappedUser.role} </li> <button class="edit">Edit Role</button> <button class="delete">Delete User</button>`;
+            let li = `
+              <li>
+                <b>Firstname</b> => ${mappedUser.firstname} <br> 
+                <b>Lastname</b> => ${mappedUser.lastname} <br> 
+                <b>PersonalID</b> => ${mappedUser.personalID} <br> 
+                <b>Address</b> => ${mappedUser.address} <br> 
+                <b>Username</b> => ${mappedUser.username} <br>
+
+                <b>Confirmation</b> => ${mappedUser.confirmation} <br> 
+
+                <b>Ban</b> => ${mappedUser.ban} <br> 
+                <b>Role</b> => ${mappedUser.role} <br> 
+                <b>ID</b> => ${mappedUser.id} <br> 
+              </li> 
+              <button class="edit">Edit Role</button> 
+              <button class="delete">Delete User</button>
+              `;
             ul.innerHTML += li;
           } else {
             return null;

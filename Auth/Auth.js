@@ -49,20 +49,33 @@ exports.userAuth = (req, res, next) => {
 };
 
 exports.register = async (req, res, next) => {
-  const { username, password } = req.body;
+  const { firstname, lastname, personalID, address, username, password } =
+    req.body;
   if (password.length < 6) {
     return res.status(400).json({ message: "Password less than 6 characters" });
   }
 
   bcrypt.hash(password, 10).then(async (hash) => {
     await User.create({
+      firstname,
+      lastname,
+      personalID,
+      address,
       username,
       password: hash,
     })
       .then((user) => {
         const maxAge = 3 * 60 * 60;
         const token = jwt.sign(
-          { id: user._id, username, role: user.role },
+          {
+            id: user._id,
+            firstname,
+            lastname,
+            personalID,
+            address,
+            username,
+            role: user.role,
+          },
           jwtSecret,
           {
             expiresIn: maxAge, // 3hrs in sec
@@ -107,7 +120,15 @@ exports.login = async (req, res, next) => {
         if (result) {
           const maxAge = 3 * 60 * 60;
           const token = jwt.sign(
-            { id: user._id, username, role: user.role },
+            {
+              id: user._id,
+              firstname: user.firstname,
+              lastname: user.lastname,
+              personalID: user.personalID,
+              address: user.address,
+              username: user.username,
+              role: user.role,
+            },
             jwtSecret,
             {
               expiresIn: maxAge, // 3hrs in sec
@@ -191,7 +212,15 @@ exports.getUsers = async (req, res, next) => {
     .then((users) => {
       const userFunction = users.map((user) => {
         const container = {};
+        container.firstname = user.firstname;
+        container.lastname = user.lastname;
+        container.personalID = user.personalID;
+        container.address = user.address;
         container.username = user.username;
+        container.lendBooks = user.lendBooks;
+        container.confirmation = user.confirmation;
+        container.history = user.history;
+        container.ban = user.ban;
         container.role = user.role;
         container.id = user._id;
         return container;
