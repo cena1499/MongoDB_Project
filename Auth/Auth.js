@@ -193,6 +193,7 @@ exports.getUsers = async (req, res, next) => {
         const container = {};
         container.username = user.username;
         container.role = user.role;
+        container.id = user._id;
         return container;
       });
       res.status(200).json({ user: userFunction });
