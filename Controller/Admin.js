@@ -34,6 +34,70 @@ exports.confirmUser = async (req, res, next) => {
   }
 };
 
+exports.banUser = async (req, res, next) => {
+  const { ban, id } = req.body;
+  if (id) {
+    if (ban === false) {
+      await User.findById(id)
+        .then((user) => {
+          if (user.ban !== true) {
+            user.ban = true;
+            user.save((err) => {
+              if (err) {
+                res
+                  .status("400")
+                  .json({ message: "An error occurred", error: err.message });
+                process.exit(1);
+              }
+              res.status("201").json({ message: "Ban was successful", user });
+            });
+          } else {
+            res.status(400).json({ message: "User is already banned" });
+          }
+        })
+        .catch((error) => {
+          res
+            .status(400)
+            .json({ message: "An error occurred", error: error.message });
+        });
+    }
+  } else {
+    res.status(400).json({ message: "Ban or Id not present" });
+  }
+};
+
+exports.unbanUser = async (req, res, next) => {
+  const { ban, id } = req.body;
+  if (id) {
+    if (ban === true) {
+      await User.findById(id)
+        .then((user) => {
+          if (user.ban !== false) {
+            user.ban = false;
+            user.save((err) => {
+              if (err) {
+                res
+                  .status("400")
+                  .json({ message: "An error occurred", error: err.message });
+                process.exit(1);
+              }
+              res.status("201").json({ message: "Unban was successful", user });
+            });
+          } else {
+            res.status(400).json({ message: "User is not banned" });
+          }
+        })
+        .catch((error) => {
+          res
+            .status(400)
+            .json({ message: "An error occurred", error: error.message });
+        });
+    }
+  } else {
+    res.status(400).json({ message: "Ban or Id not present" });
+  }
+};
+
 exports.getNumberOfUnconfirmedUsers = async (req, res, next) => {
   await User.find()
     .then((users) => {

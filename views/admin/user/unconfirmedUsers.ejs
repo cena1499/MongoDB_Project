@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin page</title>
+  </head>
+  <body>
+    <div class="display" style="background-color: red"></div>
+    <h1>Unconfirmed users</h1>
+    <%- include('../../partials/adminNavbar'); %>
+    <ul></ul>
+    <button class="logout"><a href="/logout">Log Out</a></button>
+    <script>
+      const ul = document.querySelector("ul");
+      const display = document.querySelector(".display");
+      const getUsers = async () => {
+        const res = await fetch("/api/auth/getUnconfirmedUsers");
+        const data = await res.json();
+        console.log(data.user);
+        data.user.map((mappedUser) => {
+          if (mappedUser.username !== "Admin") {
+            let li = `
+              <li>
+                <b>Firstname</b> => ${mappedUser.firstname} <br> 
+                <b>Lastname</b> => ${mappedUser.lastname} <br> 
+                <b>PersonalID</b> => ${mappedUser.personalID} <br> 
+                <b>Address</b> => ${mappedUser.address} <br> 
+                <b>Username</b> => ${mappedUser.username} <br>
+
+                <b>Confirmation</b> => ${mappedUser.confirmation} <br> 
+
+                <b>Ban</b> => ${mappedUser.ban} <br> 
+                <b>Role</b> => ${mappedUser.role} <br> 
+                <b>ID</b> => ${mappedUser.id} <br> 
+              </li> 
+              <button class="confirm">Confirm user</button> 
+              `;
+            ul.innerHTML += li;
+          } else {
+            return null;
+          }
+          const confirmUser = document.querySelectorAll(".confirm");
+
+          confirmUser.forEach((button, i) => {
+            button.addEventListener("click", async () => {
+              display.textContent = "";
+              const id = data.user[i].id;
+              const confirmation = data.user[i].confirmation;
+              const res = await fetch("/api/auth/confirmUser", {
+                method: "PUT",
+                body: JSON.stringify({ confirmation, id }),
+                headers: { "Content-Type": "application/json" },
+              });
+              const dataUpdate = await res.json();
+              if (res.status === 400 || res.status === 401) {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                return (display.textContent = `${dataUpdate.message}. ${
+                  dataUpdate.error ? dataUpdate.error : ""
+                }`);
+              }
+              location.assign("/admin/unconfirmedUsers");
+            });
+          });
+        });
+      };
+      getUsers();
+    </script>
+  </body>
+</html>

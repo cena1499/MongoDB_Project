@@ -34,7 +34,16 @@
                 <b>Role</b> => ${mappedUser.role} <br> 
                 <b>ID</b> => ${mappedUser.id} <br> 
               </li> 
-              <button class="confirm">Confirm user</button> 
+              ${
+                !mappedUser.confirmation
+                  ? ` <button class="confirm">Confirm user</button> `
+                  : `Was confirmed`
+              }
+              ${
+                !mappedUser.ban
+                  ? ` <button class="ban">Ban user</button>`
+                  : `<button class="ban">Unban user</button>`
+              }
               <button class="edit">Edit Role</button> 
               <button class="delete">Delete User</button>
               `;
@@ -45,6 +54,7 @@
           const editRole = document.querySelectorAll(".edit");
           const deleteUser = document.querySelectorAll(".delete");
           const confirmUser = document.querySelectorAll(".confirm");
+          const banUser = document.querySelectorAll(".ban");
 
           confirmUser.forEach((button, i) => {
             button.addEventListener("click", async () => {
@@ -57,6 +67,36 @@
                 headers: { "Content-Type": "application/json" },
               });
               const dataUpdate = await res.json();
+              if (res.status === 400 || res.status === 401) {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                return (display.textContent = `${dataUpdate.message}. ${
+                  dataUpdate.error ? dataUpdate.error : ""
+                }`);
+              }
+              location.assign("/admin/users");
+            });
+          });
+
+          banUser.forEach((button, i) => {
+            button.addEventListener("click", async () => {
+              display.textContent = "";
+              const id = data.user[i].id;
+              const ban = data.user[i].ban;
+              if (ban == false) {
+                const res = await fetch("/api/auth/banUser", {
+                  method: "PUT",
+                  body: JSON.stringify({ ban, id }),
+                  headers: { "Content-Type": "application/json" },
+                });
+                const dataUpdate = await res.json();
+              } else {
+                const res = await fetch("/api/auth/unbanUser", {
+                  method: "PUT",
+                  body: JSON.stringify({ ban, id }),
+                  headers: { "Content-Type": "application/json" },
+                });
+              }
               if (res.status === 400 || res.status === 401) {
                 document.body.scrollTop = 0;
                 document.documentElement.scrollTop = 0;

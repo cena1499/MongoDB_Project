@@ -30,6 +30,9 @@ app.get("/admin", adminAuth, (req, res) => res.render("admin/dashboard"));
 app.get("/admin/users", adminAuth, (req, res) =>
   res.render("admin/user/index")
 );
+app.get("/admin/unconfirmedUsers", adminAuth, (req, res) =>
+  res.render("admin/user/unconfirmedUsers")
+);
 
 app.get("/user", userAuth, (req, res) => res.render("user/home"));
 
