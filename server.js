@@ -1,7 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
-const { adminAuth, userAuth } = require("./Auth/auth.js");
+const { adminAuth, userAuth } = require("./Controller/auth.js");
 const app = express();
 
 app.set("view engine", "ejs");
@@ -24,11 +24,14 @@ process.on("unhandledRejection", (err) => {
   server.close(() => process.exit(1));
 });
 
-app.use("/api/auth", require("./Auth/route"));
-//app.get("/admin", adminAuth, (req, res) => res.send("Admin Route"));
-//app.get("/user", userAuth, (req, res) => res.send("User Route"));
-app.get("/admin", adminAuth, (req, res) => res.render("admin"));
-app.get("/user", userAuth, (req, res) => res.render("user"));
+app.use("/api/auth", require("./Controller/route"));
+app.get("/admin", adminAuth, (req, res) => res.render("admin/dashboard"));
+
+app.get("/admin/users", adminAuth, (req, res) =>
+  res.render("admin/user/index")
+);
+
+app.get("/user", userAuth, (req, res) => res.render("user/home"));
 
 //Render Views
 app.get("/", (req, res) => res.render("home"));
