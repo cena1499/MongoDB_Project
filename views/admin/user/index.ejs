@@ -32,26 +32,26 @@
 
                 <b>Ban</b> => ${mappedUser.ban} <br> 
                 <b>Role</b> => ${mappedUser.role} <br> 
-                <b>ID</b> => ${mappedUser.id} <br> 
+                <b>ID</b> => ${mappedUser.id}<br> 
               </li> 
+              <a href="/admin/detail-user/${mappedUser.id}">Detail</a>
+              <a href="/admin/edit-user/${mappedUser.id}">Edit</a>
               ${
                 !mappedUser.confirmation
-                  ? ` <button class="confirm">Confirm user</button> `
-                  : `Was confirmed`
+                  ? `<div><button class="confirm">Confirm user</button></div>`
+                  : `<div class="confirm">Was confirmed</div>`
               }
               ${
                 !mappedUser.ban
                   ? ` <button class="ban">Ban user</button>`
                   : `<button class="ban">Unban user</button>`
               }
-              <button class="edit">Edit Role</button> 
               <button class="delete">Delete User</button>
               `;
             ul.innerHTML += li;
           } else {
             return null;
           }
-          const editRole = document.querySelectorAll(".edit");
           const deleteUser = document.querySelectorAll(".delete");
           const confirmUser = document.querySelectorAll(".confirm");
           const banUser = document.querySelectorAll(".ban");
@@ -97,27 +97,6 @@
                   headers: { "Content-Type": "application/json" },
                 });
               }
-              if (res.status === 400 || res.status === 401) {
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
-                return (display.textContent = `${dataUpdate.message}. ${
-                  dataUpdate.error ? dataUpdate.error : ""
-                }`);
-              }
-              location.assign("/admin/users");
-            });
-          });
-
-          editRole.forEach((button, i) => {
-            button.addEventListener("click", async () => {
-              display.textContent = "";
-              const id = data.user[i].id;
-              const res = await fetch("/api/auth/update", {
-                method: "PUT",
-                body: JSON.stringify({ role: "Admin", id }),
-                headers: { "Content-Type": "application/json" },
-              });
-              const dataUpdate = await res.json();
               if (res.status === 400 || res.status === 401) {
                 document.body.scrollTop = 0;
                 document.documentElement.scrollTop = 0;

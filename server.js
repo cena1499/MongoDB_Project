@@ -30,8 +30,17 @@ app.get("/admin", adminAuth, (req, res) => res.render("admin/dashboard"));
 app.get("/admin/users", adminAuth, (req, res) =>
   res.render("admin/user/index")
 );
-app.get("/admin/unconfirmedUsers", adminAuth, (req, res) =>
+app.get("/admin/unconfirmed-users", adminAuth, (req, res) =>
   res.render("admin/user/unconfirmedUsers")
+);
+app.get("/admin/create-user", adminAuth, (req, res) =>
+  res.render("admin/user/create")
+);
+app.get("/admin/detail-user/:id", adminAuth, (req, res) =>
+  res.render("admin/user/detail")
+);
+app.get("/admin/edit-user/:id", adminAuth, (req, res) =>
+  res.render("admin/user/edit")
 );
 
 app.get("/user", userAuth, (req, res) => res.render("user/home"));

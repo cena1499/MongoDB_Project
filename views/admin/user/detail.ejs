@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin page</title>
+  </head>
+  <body>
+    <div class="display" style="background-color: red"></div>
+    <h1>Users</h1>
+    <%- include('../../partials/adminNavbar'); %>
+    <ul></ul>
+    <button class="logout"><a href="/logout">Log Out</a></button>
+    <script>
+      const ul = document.querySelector("ul");
+      const display = document.querySelector(".display");
+      const getUser = async () => {
+        const url = window.location.href.split("/");
+        const res = await fetch(`/api/auth/getUser/${url.slice(-1).pop()}`);
+        const data = await res.json();
+        let li = `
+              <li>
+                <b>Firstname</b> => ${data.user.firstname} <br> 
+                <b>Lastname</b> => ${data.user.lastname} <br> 
+                <b>PersonalID</b> => ${data.user.personalID} <br> 
+                <b>Address</b> => ${data.user.address} <br> 
+                <b>Username</b> => ${data.user.username} <br>
+
+                <b>Confirmation</b> => ${data.user.confirmation} <br> 
+
+                <b>Ban</b> => ${data.user.ban} <br> 
+                <b>Role</b> => ${data.user.role} <br> 
+                <b>ID</b> => ${data.user.id}<br> 
+                <a href="/admin/edit-user/${data.user.id}">Edit</a>
+              </li> 
+              ${
+                !data.user.confirmation
+                  ? `<div><button class="confirm">Confirm user</button></div>`
+                  : `<div class="confirm">Was confirmed</div>`
+              }
+              ${
+                !data.user.ban
+                  ? ` <button class="ban">Ban user</button>`
+                  : `<button class="ban">Unban user</button>`
+              }
+              <button class="delete">Delete User</button>
+              `;
+        ul.innerHTML += li;
+      };
+      getUser();
+    </script>
+  </body>
+</html>
