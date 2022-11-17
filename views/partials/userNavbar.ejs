@@ -1,0 +1,14 @@
+<div class="edit"></div>
+
+<script>
+  const edit = document.querySelector(".edit");
+  const getID = async () => {
+    const res = await fetch(`/api/auth/getID`);
+    const data = await res.json();
+    let div = `
+        <a href="/user/edit-user/${data.user}">Edit my profile</a>
+    `;
+    edit.innerHTML += div;
+  };
+  getID();
+</script>

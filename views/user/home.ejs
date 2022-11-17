@@ -8,7 +8,13 @@
   </head>
   <body>
     <h1>User home</h1>
+    <%- include('../partials/userNavbar'); %>
     <ul></ul>
+    <h2></h2>
     <button class="logout"><a href="/logout">Log Out</a></button>
+    <script>
+      const ul = document.querySelector("ul");
+      const display = document.querySelector(".display");
+    </script>
   </body>
 </html>

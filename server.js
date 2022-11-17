@@ -43,6 +43,8 @@ app.get("/admin/edit-user/:id", adminAuth, (req, res) =>
   res.render("admin/user/edit")
 );
 
+app.get("/user/edit-user/:id", userAuth, (req, res) => res.render("user/edit"));
+
 app.get("/user", userAuth, (req, res) => res.render("user/home"));
 
 //Render Views

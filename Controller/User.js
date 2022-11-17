@@ -1,4 +1,7 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const jwtSecret =
+  "03f9ac71006511a7c64670966149180e41de642f254623847fd7837f8bc7e0b22a6b33";
 
 const User = require("../model/User");
 
@@ -128,4 +131,52 @@ exports.editUserByAdmin = async (req, res, next) => {
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
     );
+};
+
+exports.editUserByUser = async (req, res, next) => {
+  const { firstname, lastname, personalID, address, username } = req.body;
+
+  await User.findById(req.params.id)
+    .then((user) => {
+      user.firstname = firstname;
+      user.lastname = lastname;
+      user.personalID = personalID;
+      user.address = address;
+      user.username = username;
+      user.confirmation = false;
+      user.save((err) => {
+        //Monogodb error checker
+        if (err) {
+          res
+            .status("400")
+            .json({ message: "An error occurred", error: err.message });
+          process.exit(1);
+        }
+        res.status("201").json({ message: "Update successful", user });
+      });
+    })
+    .catch((err) =>
+      res.status(401).json({ message: "Not successful", error: err.message })
+    );
+};
+
+exports.getID = async (req, res, next) => {
+  var token = req.cookies.jwt;
+  if (token) {
+    jwt.verify(token, jwtSecret, (err, decodedToken) => {
+      if (err) {
+        return res.status(401).json({ message: "Not authorized" });
+      } else {
+        User.findById(decodedToken.id)
+          .then((user) => {
+            res.status(200).json({ user: decodedToken.id });
+          })
+          .catch((err) =>
+            res
+              .status(401)
+              .json({ message: "Not successful", error: err.message })
+          );
+      }
+    });
+  }
 };

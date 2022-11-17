@@ -40,7 +40,7 @@
       const display = document.querySelector(".error");
       const url = window.location.href.split("/");
 
-      const getUsers = async () => {
+      const getUser = async () => {
         try {
           const res = await fetch(`/api/auth/getUser/${url.slice(-1).pop()}`);
           const data = await res.json();
@@ -66,7 +66,7 @@
         display.textContent = "";
         try {
           const res = await fetch(
-            `/api/auth/editUserByAdmin/${url.slice(-1).pop()}`,
+            `/api/auth/editUserByUser/${url.slice(-1).pop()}`,
             {
               method: "PUT",
               body: JSON.stringify({
@@ -87,13 +87,13 @@
               data.error ? data.error : ""
             }`);
           }
-          location.assign(`/admin/detail-user/${url.slice(-1).pop()}`);
+          location.assign(`/user`);
         } catch (err) {
           console.log(err.message);
         }
       });
 
-      getUsers();
+      getUser();
     </script>
   </body>
 </html>
