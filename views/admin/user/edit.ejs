@@ -7,6 +7,7 @@
   </head>
   <body>
     <h1>Edit user Page</h1>
+    <%- include('../../partials/adminNavbar'); %>
     <form>
       <div class="error" style="background-color: red"></div>
       <br />
@@ -79,9 +80,7 @@
               headers: { "Content-Type": "application/json" },
             }
           );
-          console.log(res.body.username);
           const data = await res.json();
-          console.log(data);
           if (res.status === 400 || res.status === 401) {
             return (display.textContent = `${data.message}. ${
               data.error ? data.error : ""

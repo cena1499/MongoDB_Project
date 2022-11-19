@@ -42,6 +42,18 @@ app.get("/admin/detail-user/:id", adminAuth, (req, res) =>
 app.get("/admin/edit-user/:id", adminAuth, (req, res) =>
   res.render("admin/user/edit")
 );
+app.get("/admin/create-book", adminAuth, (req, res) =>
+  res.render("admin/book/create")
+);
+app.get("/admin/books", adminAuth, (req, res) =>
+  res.render("admin/book/index")
+);
+app.get("/admin/detail-book/:id", adminAuth, (req, res) =>
+  res.render("admin/book/detail")
+);
+app.get("/admin/edit-book/:id", adminAuth, (req, res) =>
+  res.render("admin/book/edit")
+);
 
 app.get("/user/edit-user/:id", userAuth, (req, res) => res.render("user/edit"));
 

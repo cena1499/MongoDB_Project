@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin page</title>
+  </head>
+  <body>
+    <div class="display" style="background-color: red"></div>
+    <h1>Books</h1>
+    <%- include('../../partials/adminNavbar'); %>
+    <ul></ul>
+    <button class="logout"><a href="/logout">Log Out</a></button>
+    <script>
+      const ul = document.querySelector("ul");
+      const display = document.querySelector(".display");
+      const getBooks = async () => {
+        const res = await fetch("/api/auth/getBooks");
+        const data = await res.json();
+        data.book.map((mappedBook) => {
+          let li = `
+              <li>
+                <b>Name</b> => ${mappedBook.name} <br> 
+                <b>Author</b> => ${mappedBook.author} <br> 
+                <b>Number of pages</b> => ${mappedBook.numberOfPages} <br> 
+                <b>Year</b> => ${mappedBook.year} <br> 
+                <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
+                <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
+
+                <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br> 
+                <b>ID</b> => ${mappedBook.id}<br> 
+              </li> 
+              <a href="/admin/detail-book/${mappedBook.id}">Detail</a>
+              <a href="/admin/edit-book/${mappedBook.id}">Edit</a>
+              <button class="delete">Delete Book</button>
+              `;
+          ul.innerHTML += li;
+          const deleteBook = document.querySelectorAll(".delete");
+
+          deleteBook.forEach((button, i) => {
+            button.addEventListener("click", async () => {
+              display.textContent = "";
+              const id = data.book[i].id;
+              const res = await fetch("/api/auth/deleteBook", {
+                method: "DELETE",
+                body: JSON.stringify({ id }),
+                headers: { "Content-Type": "application/json" },
+              });
+              const dataDelete = await res.json();
+              if (res.status === 401) {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                return (display.textContent = `${dataUpdate.message}. ${
+                  dataUpdate.error ? dataUpdate.error : ""
+                }`);
+              }
+              location.assign("/admin/books");
+            });
+          });
+        });
+      };
+      getBooks();
+    </script>
+  </body>
+</html>

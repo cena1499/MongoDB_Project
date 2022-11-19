@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User create</title>
+  </head>
+  <body>
+    <h1>Edit book Page</h1>
+    <%- include('../../partials/adminNavbar'); %>
+    <form enctype="multipart/form-data">
+      <div class="error" style="background-color: red"></div>
+      <br />
+
+      <label for="name">Name</label><br />
+      <input type="text" id="name" required /><br />
+
+      <label for="author">Author</label><br />
+      <input type="text" id="author" required /><br />
+
+      <label for="numberOfPages">Number of pages</label><br />
+      <input type="text" id="numberOfPages" required /><br />
+
+      <label for="year">Year</label><br />
+      <input type="text" id="year" required /><br />
+
+      <label for="titlePageImage">Image of title page</label><br />
+      <input type="file" name="image" id="titlePageImage" /><br />
+
+      <!--
+        <label for="coverImage">Image of cover</label><br />
+        <input type="file" id="coverImage" required /><br />
+  -->
+      <label for="numberOfLicense">Number of licenses</label><br />
+      <input type="text" id="numberOfLicense" required /><br />
+
+      <input type="submit" value="create book" required /><br />
+    </form>
+
+    <script>
+      const form = document.querySelector("form");
+      const nameBook = document.querySelector("#name");
+      const author = document.querySelector("#author");
+      const numberOfPages = document.querySelector("#numberOfPages");
+      const year = document.querySelector("#year");
+      const titlePageImage = document.querySelector("#titlePageImage");
+      const numberOfLicense = document.querySelector("#numberOfLicense");
+      const display = document.querySelector(".error");
+      const url = window.location.href.split("/");
+
+      const getUsers = async () => {
+        try {
+          const res = await fetch(`/api/auth/getBook/${url.slice(-1).pop()}`);
+          const data = await res.json();
+
+          nameBook.value = data.book.name;
+          author.value = data.book.author;
+          numberOfPages.value = data.book.numberOfPages;
+          year.value = data.book.year;
+          //titlePageImage.value = data.book.titlePageImage;
+          numberOfLicense.value = data.book.numberOfLicense;
+
+          if (res.status === 400 || res.status === 401) {
+            return (display.textContent = `${data.message}. ${
+              data.error ? data.error : ""
+            }`);
+          }
+        } catch (err) {
+          console.log(err.message);
+        }
+      };
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        display.textContent = "";
+        try {
+          const res = await fetch(`/api/auth/editBook/${url.slice(-1).pop()}`, {
+            method: "PUT",
+            body: JSON.stringify({
+              name: nameBook.value,
+              author: author.value,
+              numberOfPages: numberOfPages.value,
+              year: year.value,
+              titlePageImage: titlePageImage.value.split(/(\\|\/)/g).pop(),
+              numberOfLicense: numberOfLicense.value,
+            }),
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await res.json();
+          if (res.status === 400 || res.status === 401) {
+            return (display.textContent = `${data.message}. ${
+              data.error ? data.error : ""
+            }`);
+          }
+          location.assign(`/admin/detail-book/${url.slice(-1).pop()}`);
+        } catch (err) {
+          console.log(err.message);
+        }
+      });
+
+      getUsers();
+    </script>
+  </body>
+</html>

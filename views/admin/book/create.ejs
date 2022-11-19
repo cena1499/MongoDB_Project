@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book create</title>
+  </head>
+  <body>
+    <h1>Create book Page</h1>
+    <%- include('../../partials/adminNavbar'); %>
+    <form enctype="multipart/form-data">
+      <div class="error" style="background-color: red"></div>
+      <br />
+
+      <label for="name">Name</label><br />
+      <input type="text" id="name" required /><br />
+
+      <label for="author">Author</label><br />
+      <input type="text" id="author" required /><br />
+
+      <label for="numberOfPages">Number of pages</label><br />
+      <input type="text" id="numberOfPages" required /><br />
+
+      <label for="year">Year</label><br />
+      <input type="text" id="year" required /><br />
+
+      <label for="titlePageImage" onchange="">Image URL of title page</label
+      ><br />
+      <input
+        type="text"
+        id="titlePageImage"
+        onkeyup="showTitlePageImage()"
+        required
+      /><br />
+
+      <div id="showTitlePageImage"></div>
+
+      <label for="coverImage">Image URL of cover</label><br />
+      <input
+        type="text"
+        id="coverImage"
+        onkeyup="showCoverImage()"
+        required
+      /><br />
+
+      <div id="showCoverImage"></div>
+
+      <label for="numberOfLicense">Number of licenses</label><br />
+      <input type="text" id="numberOfLicense" required /><br />
+
+      <input type="submit" value="create book" required /><br />
+    </form>
+
+    <script>
+      const form = document.querySelector("form");
+      const nameBook = document.querySelector("#name");
+      const author = document.querySelector("#author");
+      const numberOfPages = document.querySelector("#numberOfPages");
+      const year = document.querySelector("#year");
+      const titlePageImage = document.querySelector("#titlePageImage");
+      const coverImage = document.querySelector("#coverImage");
+      const numberOfLicense = document.querySelector("#numberOfLicense");
+      var imageFirst = document.querySelector("#showTitlePageImage");
+      var imageSecond = document.querySelector("#showCoverImage");
+      const display = document.querySelector(".error");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        display.textContent = "";
+        /*console.log(
+          nameBook.value +
+            " " +
+            author.value +
+            " " +
+            numberOfPages.value +
+            " " +
+            year.value +
+            " " +
+            titlePageImage.value.split(/(\\|\/)/g).pop() +
+            " " +
+            coverImage.value.split(/(\\|\/)/g).pop() +
+            " " +
+            numberOfLicense.value
+        );*/
+        try {
+          const res = await fetch("/api/auth/createBook", {
+            method: "POST",
+            body: JSON.stringify({
+              name: nameBook.value,
+              author: author.value,
+              numberOfPages: numberOfPages.value,
+              year: year.value,
+              titlePageImage: titlePageImage.value,
+              coverImage: coverImage.value,
+              numberOfLicense: numberOfLicense.value,
+            }),
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await res.json();
+          if (res.status === 400 || res.status === 401) {
+            return (display.textContent = `${data.message}. ${
+              data.error ? data.error : ""
+            }`);
+          }
+          location.assign("/admin/books");
+        } catch (err) {
+          console.log(err.message);
+        }
+      });
+
+      const showTitlePageImage = async () => {
+        const img = `<img src="${titlePageImage.value}" />`;
+        imageFirst.innerHTML = img;
+      };
+
+      const showCoverImage = async () => {
+        const img = `<img src="${coverImage.value}" />`;
+        imageSecond.innerHTML = img;
+      };
+    </script>
+  </body>
+</html>
