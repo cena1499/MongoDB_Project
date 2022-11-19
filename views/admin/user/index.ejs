@@ -14,6 +14,15 @@
     <form id="formFirstName">
       <label for="filterFirstname">Firstname filter</label><br />
       <input type="text" id="filterFirstname" /><br />
+
+      <label for="filterLastname">Lastname filter</label><br />
+      <input type="text" id="filterLastname" /><br />
+
+      <label for="filterAddress">Address filter</label><br />
+      <input type="text" id="filterAddress" /><br />
+
+      <label for="filterPersonalID">PersonalID filter</label><br />
+      <input type="text" id="filterPersonalID" /><br />
     </form>
 
     <ul></ul>
@@ -22,9 +31,11 @@
       const ul = document.querySelector("ul");
       const display = document.querySelector(".display");
       const firstNameFilter = document.querySelector("#filterFirstname");
-      const formFirstName = document.querySelector("#formFirstName");
-      const container = {};
-      container.filterFirstName = "";
+      const lastNameFilter = document.querySelector("#filterLastname");
+      const addressFilter = document.querySelector("#filterAddress");
+      const personalIDFilter = document.querySelector("#filterPersonalID");
+
+      const form = document.querySelector("#formFirstName");
 
       const getUsers = async () => {
         const res = await fetch("/api/auth/getUsers");
@@ -144,21 +155,41 @@
       };
 
       formFirstName.addEventListener("keyup", async (e) => {
-        if (firstNameFilter.value.length >= 3) {
+        if (
+          firstNameFilter.value.length >= 3 ||
+          lastNameFilter.value.length >= 3 ||
+          addressFilter.value.length >= 3 ||
+          personalIDFilter.value.length >= 3
+        ) {
           e.preventDefault();
           display.textContent = "";
-          /*var queryParams = new URLSearchParams(window.location.search);
-          window.history.pushState("", "", `users/${firstNameFilter.value}`);
-          window.history.replaceState("", "", `users/${firstNameFilter.value}`);
-          console.log(queryParams);
-          queryParams.set("firstname", firstNameFilter.value);
-          history.replaceState(null, null, "?" + queryParams.toString());*/
+          var firstnameFilterValue = "";
+          var lastnameFilterValue = "";
+          var addressFilterValue = "";
+          var personalIDFilterValue = "";
+
+          if (firstNameFilter.value.length >= 3) {
+            firstnameFilterValue = firstNameFilter.value;
+          }
+          if (lastNameFilter.value.length >= 3) {
+            lastnameFilterValue = lastNameFilter.value;
+          }
+          if (addressFilter.value.length >= 3) {
+            addressFilterValue = addressFilter.value;
+          }
+          if (personalIDFilter.value.length >= 3) {
+            personalIDFilterValue = personalIDFilter.value;
+          }
+
           try {
             //console.log(firstNameFilter.value); OK
-            const res = await fetch("/api/auth/getUsersByFirstNameString", {
+            const res = await fetch("/api/auth/getUsersByFilter", {
               method: "POST",
               body: JSON.stringify({
-                filterFirstName: firstNameFilter.value,
+                filterFirstName: firstnameFilterValue,
+                filterLastName: lastnameFilterValue,
+                filterAddress: addressFilterValue,
+                filterPersonalID: personalIDFilterValue,
               }),
               headers: { "Content-Type": "application/json" },
             });

@@ -113,11 +113,20 @@ exports.getNumberOfUnconfirmedUsers = async (req, res, next) => {
     );
 };
 
-exports.getUsersByFirstNameString = async (req, res, next) => {
-  const regexName = req.body.filterFirstName;
+exports.getUsersByFilter = async (req, res, next) => {
+  const regexFirstname = req.body.filterFirstName;
+  const regexLastname = req.body.filterLastName;
+  const regexAddress = req.body.filterAddress;
+  const regexPersonalID = req.body.filterPersonalID;
+
   console.log(req.body);
 
-  await User.find({ firstname: { $regex: regexName } })
+  await User.find({
+    firstname: { $regex: regexFirstname },
+    lastname: { $regex: regexLastname },
+    address: { $regex: regexAddress },
+    personalID: { $regex: regexPersonalID },
+  })
     .then((users) => {
       const userFunction = users.map((user) => {
         const container = {};
