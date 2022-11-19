@@ -32,12 +32,12 @@ router
   .route("/getNumberOfUnconfirmedUsers")
   .get(adminAuth, getNumberOfUnconfirmedUsers);
 router.route("/getUnconfirmedUsers").get(adminAuth, getUnconfirmedUsers);
-router
-  .route("/getUsersByFirstNameString")
-  .get(adminAuth, getUsersByFirstNameString);
 
 router.route("/createUser").post(adminAuth, createUser);
 router.route("/createBook").post(adminAuth, createBook);
+router
+  .route("/getUsersByFirstNameString")
+  .post(adminAuth, getUsersByFirstNameString);
 
 router.route("/banUser").put(adminAuth, banUser);
 router.route("/unbanUser").put(adminAuth, unbanUser);

@@ -11,14 +11,10 @@
     <h1>Users</h1>
     <%- include('../../partials/adminNavbar'); %>
 
-    <div>
+    <form id="formFirstName">
       <label for="filterFirstname">Firstname filter</label><br />
-      <input
-        type="text"
-        id="filterFirstname"
-        onkeyup="setFirstnameFilter()"
-      /><br />
-    </div>
+      <input type="text" id="filterFirstname" /><br />
+    </form>
 
     <ul></ul>
     <button class="logout"><a href="/logout">Log Out</a></button>
@@ -26,26 +22,30 @@
       const ul = document.querySelector("ul");
       const display = document.querySelector(".display");
       const firstNameFilter = document.querySelector("#filterFirstname");
+      const formFirstName = document.querySelector("#formFirstName");
+      const container = {};
+      container.filterFirstName = "";
 
       const getUsers = async () => {
         const res = await fetch("/api/auth/getUsers");
         const data = await res.json();
+        ul.innerHTML = "";
         data.user.map((mappedUser) => {
           if (mappedUser.username !== "Admin") {
             let li = `
               <li>
-                <b>Firstname</b> => ${mappedUser.firstname} <br> 
-                <b>Lastname</b> => ${mappedUser.lastname} <br> 
-                <b>PersonalID</b> => ${mappedUser.personalID} <br> 
-                <b>Address</b> => ${mappedUser.address} <br> 
+                <b>Firstname</b> => ${mappedUser.firstname} <br>
+                <b>Lastname</b> => ${mappedUser.lastname} <br>
+                <b>PersonalID</b> => ${mappedUser.personalID} <br>
+                <b>Address</b> => ${mappedUser.address} <br>
                 <b>Username</b> => ${mappedUser.username} <br>
 
-                <b>Confirmation</b> => ${mappedUser.confirmation} <br> 
+                <b>Confirmation</b> => ${mappedUser.confirmation} <br>
 
-                <b>Ban</b> => ${mappedUser.ban} <br> 
-                <b>Role</b> => ${mappedUser.role} <br> 
-                <b>ID</b> => ${mappedUser.id}<br> 
-              </li> 
+                <b>Ban</b> => ${mappedUser.ban} <br>
+                <b>Role</b> => ${mappedUser.role} <br>
+                <b>ID</b> => ${mappedUser.id}<br>
+              </li>
               <a href="/admin/detail-user/${mappedUser.id}">Detail</a>
               <a href="/admin/edit-user/${mappedUser.id}">Edit</a>
               ${
@@ -143,26 +143,53 @@
         });
       };
 
-      setFirstnameFilter = async () => {
-        if (firstNameFilter.length >= 3) {
-          const res = await fetch("/api/auth/getUsersByFirstNameString");
-          const data = await res.json();
-          data.user.map((mappedUser) => {
-            if (mappedUser.username !== "Admin") {
-              let li = `
+      formFirstName.addEventListener("keyup", async (e) => {
+        if (firstNameFilter.value.length >= 3) {
+          e.preventDefault();
+          display.textContent = "";
+          /*var queryParams = new URLSearchParams(window.location.search);
+          window.history.pushState("", "", `users/${firstNameFilter.value}`);
+          window.history.replaceState("", "", `users/${firstNameFilter.value}`);
+          console.log(queryParams);
+          queryParams.set("firstname", firstNameFilter.value);
+          history.replaceState(null, null, "?" + queryParams.toString());*/
+          try {
+            //console.log(firstNameFilter.value); OK
+            const res = await fetch("/api/auth/getUsersByFirstNameString", {
+              method: "POST",
+              body: JSON.stringify({
+                filterFirstName: firstNameFilter.value,
+              }),
+              headers: { "Content-Type": "application/json" },
+            });
+            const data = await res.json();
+            if (res.status === 400 || res.status === 401) {
+              return (display.textContent = `${data.message}. ${
+                data.error ? data.error : ""
+              }`);
+            }
+
+            if (data.user.length == 0) {
+              ul.innerHTML = "";
+            }
+
+            ul.innerHTML = "";
+            data.user.map((mappedUser) => {
+              if (mappedUser.username !== "Admin") {
+                let li = `
               <li>
-                <b>Firstname</b> => ${mappedUser.firstname} <br> 
-                <b>Lastname</b> => ${mappedUser.lastname} <br> 
-                <b>PersonalID</b> => ${mappedUser.personalID} <br> 
-                <b>Address</b> => ${mappedUser.address} <br> 
+                <b>Firstname</b> => ${mappedUser.firstname} <br>
+                <b>Lastname</b> => ${mappedUser.lastname} <br>
+                <b>PersonalID</b> => ${mappedUser.personalID} <br>
+                <b>Address</b> => ${mappedUser.address} <br>
                 <b>Username</b> => ${mappedUser.username} <br>
 
-                <b>Confirmation</b> => ${mappedUser.confirmation} <br> 
+                <b>Confirmation</b> => ${mappedUser.confirmation} <br>
 
-                <b>Ban</b> => ${mappedUser.ban} <br> 
-                <b>Role</b> => ${mappedUser.role} <br> 
-                <b>ID</b> => ${mappedUser.id}<br> 
-              </li> 
+                <b>Ban</b> => ${mappedUser.ban} <br>
+                <b>Role</b> => ${mappedUser.role} <br>
+                <b>ID</b> => ${mappedUser.id}<br>
+              </li>
               <a href="/admin/detail-user/${mappedUser.id}">Detail</a>
               <a href="/admin/edit-user/${mappedUser.id}">Edit</a>
               ${
@@ -177,89 +204,95 @@
               }
               <button class="delete">Delete User</button>
               `;
-              ul.innerHTML += li;
-            } else {
-              return null;
-            }
-            const deleteUser = document.querySelectorAll(".delete");
-            const confirmUser = document.querySelectorAll(".confirm");
-            const banUser = document.querySelectorAll(".ban");
+                ul.innerHTML += li;
+              } else {
+                return null;
+              }
 
-            confirmUser.forEach((button, i) => {
-              button.addEventListener("click", async () => {
-                display.textContent = "";
-                const id = data.user[i].id;
-                const confirmation = data.user[i].confirmation;
-                const res = await fetch("/api/auth/confirmUser", {
-                  method: "PUT",
-                  body: JSON.stringify({ confirmation, id }),
-                  headers: { "Content-Type": "application/json" },
-                });
-                const dataUpdate = await res.json();
-                if (res.status === 400 || res.status === 401) {
-                  document.body.scrollTop = 0;
-                  document.documentElement.scrollTop = 0;
-                  return (display.textContent = `${dataUpdate.message}. ${
-                    dataUpdate.error ? dataUpdate.error : ""
-                  }`);
-                }
-                location.assign("/admin/users");
-              });
-            });
+              const deleteUser = document.querySelectorAll(".delete");
+              const confirmUser = document.querySelectorAll(".confirm");
+              const banUser = document.querySelectorAll(".ban");
 
-            banUser.forEach((button, i) => {
-              button.addEventListener("click", async () => {
-                display.textContent = "";
-                const id = data.user[i].id;
-                const ban = data.user[i].ban;
-                if (ban == false) {
-                  const res = await fetch("/api/auth/banUser", {
+              confirmUser.forEach((button, i) => {
+                button.addEventListener("click", async () => {
+                  display.textContent = "";
+                  const id = data.user[i].id;
+                  const confirmation = data.user[i].confirmation;
+                  const res = await fetch("/api/auth/confirmUser", {
                     method: "PUT",
-                    body: JSON.stringify({ ban, id }),
+                    body: JSON.stringify({ confirmation, id }),
                     headers: { "Content-Type": "application/json" },
                   });
                   const dataUpdate = await res.json();
-                } else {
-                  const res = await fetch("/api/auth/unbanUser", {
-                    method: "PUT",
-                    body: JSON.stringify({ ban, id }),
+                  if (res.status === 400 || res.status === 401) {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                    return (display.textContent = `${dataUpdate.message}. ${
+                      dataUpdate.error ? dataUpdate.error : ""
+                    }`);
+                  }
+                  location.assign("/admin/users");
+                });
+              });
+
+              banUser.forEach((button, i) => {
+                button.addEventListener("click", async () => {
+                  display.textContent = "";
+                  const id = data.user[i].id;
+                  const ban = data.user[i].ban;
+                  if (ban == false) {
+                    const res = await fetch("/api/auth/banUser", {
+                      method: "PUT",
+                      body: JSON.stringify({ ban, id }),
+                      headers: { "Content-Type": "application/json" },
+                    });
+                    const dataUpdate = await res.json();
+                  } else {
+                    const res = await fetch("/api/auth/unbanUser", {
+                      method: "PUT",
+                      body: JSON.stringify({ ban, id }),
+                      headers: { "Content-Type": "application/json" },
+                    });
+                  }
+                  if (res.status === 400 || res.status === 401) {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                    return (display.textContent = `${dataUpdate.message}. ${
+                      dataUpdate.error ? dataUpdate.error : ""
+                    }`);
+                  }
+                  location.assign("/admin/users");
+                });
+              });
+
+              deleteUser.forEach((button, i) => {
+                button.addEventListener("click", async () => {
+                  display.textContent = "";
+                  const id = data.user[i].id;
+                  const res = await fetch("/api/auth/deleteUser", {
+                    method: "DELETE",
+                    body: JSON.stringify({ id }),
                     headers: { "Content-Type": "application/json" },
                   });
-                }
-                if (res.status === 400 || res.status === 401) {
-                  document.body.scrollTop = 0;
-                  document.documentElement.scrollTop = 0;
-                  return (display.textContent = `${dataUpdate.message}. ${
-                    dataUpdate.error ? dataUpdate.error : ""
-                  }`);
-                }
-                location.assign("/admin/users");
-              });
-            });
-
-            deleteUser.forEach((button, i) => {
-              button.addEventListener("click", async () => {
-                display.textContent = "";
-                const id = data.user[i].id;
-                const res = await fetch("/api/auth/deleteUser", {
-                  method: "DELETE",
-                  body: JSON.stringify({ id }),
-                  headers: { "Content-Type": "application/json" },
+                  const dataDelete = await res.json();
+                  if (res.status === 401) {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                    return (display.textContent = `${dataUpdate.message}. ${
+                      dataUpdate.error ? dataUpdate.error : ""
+                    }`);
+                  }
+                  location.assign("/admin/users");
                 });
-                const dataDelete = await res.json();
-                if (res.status === 401) {
-                  document.body.scrollTop = 0;
-                  document.documentElement.scrollTop = 0;
-                  return (display.textContent = `${dataUpdate.message}. ${
-                    dataUpdate.error ? dataUpdate.error : ""
-                  }`);
-                }
-                location.assign("/admin/users");
               });
             });
-          });
+          } catch (err) {
+            console.log(err.message);
+          }
+        } else {
+          getUsers();
         }
-      };
+      });
 
       getUsers();
     </script>

@@ -1,4 +1,5 @@
 const User = require("../model/User");
+const url = require("url");
 
 exports.confirmUser = async (req, res, next) => {
   const { confirmation, id } = req.body;
@@ -113,7 +114,8 @@ exports.getNumberOfUnconfirmedUsers = async (req, res, next) => {
 };
 
 exports.getUsersByFirstNameString = async (req, res, next) => {
-  const regexName = req.body.regex;
+  const regexName = req.body.filterFirstName;
+  console.log(req.body);
 
   await User.find({ firstname: { $regex: regexName } })
     .then((users) => {
