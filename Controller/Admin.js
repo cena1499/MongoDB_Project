@@ -118,15 +118,26 @@ exports.getUsersByFilter = async (req, res, next) => {
   const regexLastname = req.body.filterLastName;
   const regexAddress = req.body.filterAddress;
   const regexPersonalID = req.body.filterPersonalID;
+  const sortByFirstname = req.body.sortByFirstName;
+  const sortByLastName = req.body.sortByLastName;
+  const sortByAddress = req.body.sortByAddress;
+  const sortByPersonalID = req.body.sortByPersonalID;
 
-  console.log(req.body);
+  const container = {};
+
+  if (sortByFirstname != 0) container.firstname = sortByFirstname;
+  if (sortByLastName != 0) container.lastname = sortByLastName;
+  if (sortByAddress != 0) container.address = sortByAddress;
+  if (sortByPersonalID != 0) container.personalID = sortByPersonalID;
 
   await User.find({
-    firstname: { $regex: regexFirstname },
-    lastname: { $regex: regexLastname },
-    address: { $regex: regexAddress },
-    personalID: { $regex: regexPersonalID },
+    firstname: { $regex: regexFirstname, $options: "i" },
+    lastname: { $regex: regexLastname, $options: "i" },
+    address: { $regex: regexAddress, $options: "i" },
+    personalID: { $regex: regexPersonalID, $options: "i" },
   })
+    .collation({ locale: "en" })
+    .sort(container)
     .then((users) => {
       const userFunction = users.map((user) => {
         const container = {};

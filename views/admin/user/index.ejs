@@ -23,6 +23,38 @@
 
       <label for="filterPersonalID">PersonalID filter</label><br />
       <input type="text" id="filterPersonalID" /><br />
+
+      <div id="filterSort"></div>
+
+      <button type="button" onclick="setFirstNameByAsc()">
+        Firstname Sort ASC
+      </button>
+      <button type="button" onclick="setFirstNameByDesc()">
+        Firstname Sort DESC
+      </button>
+      <br />
+      <button type="button" onclick="setLastNameByAsc()">
+        Lastname Sort ASC
+      </button>
+      <button type="button" onclick="setLastNameByDesc()">
+        Lastname Sort DESC
+      </button>
+      <br />
+
+      <button type="button" onclick="setAddresByAsc()">Address Sort ASC</button>
+      <button type="button" onclick="setAddresByDesc()">
+        Address Sort DESC
+      </button>
+      <br />
+
+      <button type="button" onclick="setPersonalIDByAsc()">
+        PersonalID Sort ASC
+      </button>
+      <button type="button" onclick="setPersonalIDByDesc()">
+        PersonalID Sort DESC
+      </button>
+
+      <br />
     </form>
 
     <ul></ul>
@@ -34,6 +66,87 @@
       const lastNameFilter = document.querySelector("#filterLastname");
       const addressFilter = document.querySelector("#filterAddress");
       const personalIDFilter = document.querySelector("#filterPersonalID");
+
+      const filterSort = document.querySelector("#filterSort");
+
+      var sortByFirstName = 0;
+      var sortByLastName = 0;
+      var sortByAddress = 0;
+      var sortByPersonalID = 0;
+
+      var setSort = false;
+
+      const setFirstNameByAsc = () => {
+        sortByFirstName = 1;
+        sortByLastName = 0;
+        sortByAddress = 0;
+        sortByPersonalID = 0;
+        filterSort.innerHTML = "Firstname ASC filter";
+        setSort = true;
+      };
+
+      const setFirstNameByDesc = () => {
+        sortByFirstName = -1;
+        sortByLastName = 0;
+        sortByAddress = 0;
+        sortByPersonalID = 0;
+        filterSort.innerHTML = "Firstname DSC filter";
+        setSort = true;
+      };
+
+      const setLastNameByAsc = (e) => {
+        sortByFirstName = 0;
+        sortByLastName = 1;
+        sortByAddress = 0;
+        sortByPersonalID = 0;
+        filterSort.innerHTML = "Lastname ASC filter";
+        setSort = true;
+      };
+
+      const setLastNameByDesc = (e) => {
+        sortByFirstName = 0;
+        sortByLastName = -1;
+        sortByAddress = 0;
+        sortByPersonalID = 0;
+        filterSort.innerHTML = "Lastname DSC filter";
+        setSort = true;
+      };
+
+      const setAddresByAsc = (e) => {
+        sortByFirstName = 0;
+        sortByLastName = 0;
+        sortByAddress = 1;
+        sortByPersonalID = 0;
+        filterSort.innerHTML = "Address ASC filter";
+        setSort = true;
+      };
+
+      const setAddresByDesc = (e) => {
+        sortByFirstName = 0;
+        sortByLastName = 0;
+        sortByAddress = -1;
+        sortByPersonalID = 0;
+        filterSort.innerHTML = "Address DSC filter";
+        setSort = true;
+      };
+
+      const setPersonalIDByAsc = (e) => {
+        sortByFirstName = 0;
+        sortByLastName = 0;
+        sortByAddress = 0;
+        sortByPersonalID = 1;
+        filterSort.innerHTML = "PersonalID ASC filter";
+        setSort = true;
+      };
+
+      const setPersonalIDByDesc = (e) => {
+        sortByFirstName = 0;
+        sortByLastName = 0;
+        sortByAddress = 0;
+        sortByPersonalID = -1;
+        filterSort.innerHTML = "PersonalID DSC filter";
+        setSort = true;
+      };
 
       const form = document.querySelector("#formFirstName");
 
@@ -154,12 +267,13 @@
         });
       };
 
-      formFirstName.addEventListener("keyup", async (e) => {
+      const getFilterUsers = async (e) => {
         if (
           firstNameFilter.value.length >= 3 ||
           lastNameFilter.value.length >= 3 ||
           addressFilter.value.length >= 3 ||
-          personalIDFilter.value.length >= 3
+          personalIDFilter.value.length >= 3 ||
+          setSort == true
         ) {
           e.preventDefault();
           display.textContent = "";
@@ -190,6 +304,10 @@
                 filterLastName: lastnameFilterValue,
                 filterAddress: addressFilterValue,
                 filterPersonalID: personalIDFilterValue,
+                sortByFirstName: sortByFirstName,
+                sortByLastName: sortByLastName,
+                sortByAddress: sortByAddress,
+                sortByPersonalID: sortByPersonalID,
               }),
               headers: { "Content-Type": "application/json" },
             });
@@ -323,6 +441,14 @@
         } else {
           getUsers();
         }
+      };
+
+      formFirstName.addEventListener("keyup", async (e) => {
+        getFilterUsers(e);
+      });
+
+      formFirstName.addEventListener("click", async (e) => {
+        getFilterUsers(e);
       });
 
       getUsers();
