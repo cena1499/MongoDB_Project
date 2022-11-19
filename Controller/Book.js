@@ -3,7 +3,7 @@ const Book = require("../model/Book");
 exports.getBooks = async (req, res, next) => {
   await Book.find({})
     .then((books) => {
-      const userFunction = books.map((book) => {
+      const bookFunction = books.map((book) => {
         const container = {};
         container.name = book.name;
         container.author = book.author;
@@ -15,7 +15,7 @@ exports.getBooks = async (req, res, next) => {
         container.id = book._id;
         return container;
       });
-      res.status(200).json({ book: userFunction });
+      res.status(200).json({ book: bookFunction });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })

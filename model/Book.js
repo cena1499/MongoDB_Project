@@ -17,7 +17,7 @@ const BookSchema = new Mongoose.Schema({
     required: true,
   },
   year: {
-    type: Number,
+    type: String,
     unique: false,
     required: true,
   },

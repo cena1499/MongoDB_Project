@@ -8,6 +8,7 @@ const {
   banUser,
   unbanUser,
   getUsersByFilter,
+  getBooksByFilter,
 } = require("./Admin");
 const {
   getUsers,
@@ -36,6 +37,7 @@ router.route("/getUnconfirmedUsers").get(adminAuth, getUnconfirmedUsers);
 router.route("/createUser").post(adminAuth, createUser);
 router.route("/createBook").post(adminAuth, createBook);
 router.route("/getUsersByFilter").post(adminAuth, getUsersByFilter);
+router.route("/getBooksByFilter").post(adminAuth, getBooksByFilter);
 
 router.route("/banUser").put(adminAuth, banUser);
 router.route("/unbanUser").put(adminAuth, unbanUser);

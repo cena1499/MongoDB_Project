@@ -10,14 +10,103 @@
     <div class="display" style="background-color: red"></div>
     <h1>Books</h1>
     <%- include('../../partials/adminNavbar'); %>
+
+    <form id="formFirstName">
+      <label for="name">Name filter</label><br />
+      <input type="text" id="name" /><br />
+
+      <label for="author">Author filter</label><br />
+      <input type="text" id="author" /><br />
+
+      <label for="year">Year filter</label><br />
+      <input type="text" id="year" /><br />
+
+      <div id="filterSort"></div>
+
+      <button type="button" onclick="setNameByAsc()">Name Sort ASC</button>
+      <button type="button" onclick="setNameByDesc()">Name Sort DESC</button>
+      <br />
+      <button type="button" onclick="setAuthorByAsc()">Author Sort ASC</button>
+      <button type="button" onclick="setAuthorByDesc()">
+        Author Sort DESC
+      </button>
+      <br />
+
+      <button type="button" onclick="setYearByAsc()">Year Sort ASC</button>
+      <button type="button" onclick="setYearByDesc()">Year Sort DESC</button>
+
+      <br />
+    </form>
+
     <ul></ul>
     <button class="logout"><a href="/logout">Log Out</a></button>
     <script>
       const ul = document.querySelector("ul");
       const display = document.querySelector(".display");
+      const nameFilter = document.querySelector("#name");
+      const authorFilter = document.querySelector("#author");
+      const yearFilter = document.querySelector("#year");
+
+      const filterSort = document.querySelector("#filterSort");
+
+      var sortByName = 0;
+      var sortByAuthor = 0;
+      var sortByYear = 0;
+
+      var setSort = false;
+
+      const setNameByAsc = () => {
+        sortByName = 1;
+        sortByAuthor = 0;
+        sortByYear = 0;
+        filterSort.innerHTML = "Name ASC filter";
+        setSort = true;
+      };
+
+      const setNameByDesc = () => {
+        sortByName = -1;
+        sortByAuthor = 0;
+        sortByYear = 0;
+        filterSort.innerHTML = "Name DSC filter";
+        setSort = true;
+      };
+
+      const setAuthorByAsc = () => {
+        sortByName = 0;
+        sortByAuthor = 1;
+        sortByYear = 0;
+        filterSort.innerHTML = "Author ASC filter";
+        setSort = true;
+      };
+
+      const setAuthorByDesc = () => {
+        sortByName = 0;
+        sortByAuthor = -1;
+        sortByYear = 0;
+        filterSort.innerHTML = "Author DSC filter";
+        setSort = true;
+      };
+
+      const setYearByAsc = () => {
+        sortByName = 0;
+        sortByAuthor = 0;
+        sortByYear = 1;
+        filterSort.innerHTML = "Year ASC filter";
+        setSort = true;
+      };
+
+      const setYearByDesc = () => {
+        sortByName = 0;
+        sortByAuthor = 0;
+        sortByYear = -1;
+        filterSort.innerHTML = "Year DSC filter";
+        setSort = true;
+      };
+
       const getBooks = async () => {
         const res = await fetch("/api/auth/getBooks");
         const data = await res.json();
+        ul.innerHTML = "";
         data.book.map((mappedBook) => {
           let li = `
               <li>
@@ -60,6 +149,111 @@
           });
         });
       };
+
+      const getFilterBooks = async (e) => {
+        if (
+          nameFilter.value.length >= 3 ||
+          authorFilter.value.length >= 3 ||
+          yearFilter.value.length >= 3 ||
+          setSort == true
+        ) {
+          e.preventDefault();
+          display.textContent = "";
+          var nameFilterValue = "";
+          var authorFilterValue = "";
+          var yearFilterValue = "";
+
+          if (nameFilter.value.length >= 3) {
+            nameFilterValue = nameFilter.value;
+          }
+          if (authorFilter.value.length >= 3) {
+            authorFilterValue = authorFilter.value;
+          }
+          if (yearFilter.value.length >= 3) {
+            yearFilterValue = yearFilter.value;
+          }
+          try {
+            const res = await fetch("/api/auth/getBooksByFilter", {
+              method: "POST",
+              body: JSON.stringify({
+                filterName: nameFilterValue,
+                filterAuthor: authorFilterValue,
+                filterYear: yearFilterValue,
+                sortByName: sortByName,
+                sortByAuthor: sortByAuthor,
+                sortByYear: sortByYear,
+              }),
+              headers: { "Content-Type": "application/json" },
+            });
+            const data = await res.json();
+            if (res.status === 400 || res.status === 401) {
+              return (display.textContent = `${data.message}. ${
+                data.error ? data.error : ""
+              }`);
+            }
+
+            if (data.book.length == 0) {
+              ul.innerHTML = "";
+            }
+
+            ul.innerHTML = "";
+            data.book.map((mappedBook) => {
+              let li = `
+              <li>
+                <b>Name</b> => ${mappedBook.name} <br> 
+                <b>Author</b> => ${mappedBook.author} <br> 
+                <b>Number of pages</b> => ${mappedBook.numberOfPages} <br> 
+                <b>Year</b> => ${mappedBook.year} <br> 
+                <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
+                <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
+
+                <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br> 
+                <b>ID</b> => ${mappedBook.id}<br> 
+              </li> 
+              <a href="/admin/detail-book/${mappedBook.id}">Detail</a>
+              <a href="/admin/edit-book/${mappedBook.id}">Edit</a>
+              <button class="delete">Delete Book</button>
+              `;
+              ul.innerHTML += li;
+              const deleteBook = document.querySelectorAll(".delete");
+
+              deleteBook.forEach((button, i) => {
+                button.addEventListener("click", async () => {
+                  display.textContent = "";
+                  const id = data.book[i].id;
+                  const res = await fetch("/api/auth/deleteBook", {
+                    method: "DELETE",
+                    body: JSON.stringify({ id }),
+                    headers: { "Content-Type": "application/json" },
+                  });
+                  const dataDelete = await res.json();
+                  if (res.status === 401) {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                    return (display.textContent = `${dataUpdate.message}. ${
+                      dataUpdate.error ? dataUpdate.error : ""
+                    }`);
+                  }
+                  location.assign("/admin/books");
+                });
+              });
+            });
+          } catch (err) {
+            console.log(err.message);
+          }
+        } else {
+          getBooks();
+        }
+      };
+
+      formFirstName.addEventListener("keyup", async (e) => {
+        getFilterBooks(e);
+      });
+
+      formFirstName.addEventListener("click", async (e) => {
+        getFilterBooks(e);
+      });
+
       getBooks();
     </script>
   </body>
