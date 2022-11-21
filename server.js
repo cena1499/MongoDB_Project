@@ -58,6 +58,13 @@ app.get("/admin/edit-book/:id", adminAuth, (req, res) =>
 app.get("/user/edit-user/:id", userAuth, (req, res) => res.render("user/edit"));
 
 app.get("/user", userAuth, (req, res) => res.render("user/home"));
+app.get("/user/books", userAuth, (req, res) => res.render("user/book/index"));
+app.get("/user/detail-book/:id", userAuth, (req, res) =>
+  res.render("user/book/detail")
+);
+app.get("/user/my-books", userAuth, (req, res) =>
+  res.render("user/book/lendBook")
+);
 
 //Render Views
 app.get("/", (req, res) => res.render("home"));

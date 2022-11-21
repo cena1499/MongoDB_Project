@@ -48,6 +48,27 @@ exports.userAuth = (req, res, next) => {
   }
 };
 
+exports.loginAuth = (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (token) {
+    jwt.verify(token, jwtSecret, (err, decodedToken) => {
+      if (err) {
+        return res.status(401).json({ message: "Not authorized" });
+      } else {
+        if (decodedToken.role === "Admin" || decodedToken.role === "User") {
+          next();
+        } else {
+          return res.status(401).json({ message: "Not authorized" });
+        }
+      }
+    });
+  } else {
+    return res
+      .status(401)
+      .json({ message: "Not authorized, token not available" });
+  }
+};
+
 exports.register = async (req, res, next) => {
   const { firstname, lastname, personalID, address, username, password } =
     req.body;

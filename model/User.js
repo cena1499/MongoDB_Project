@@ -33,10 +33,12 @@ const UserSchema = new Mongoose.Schema({
   },
   lendBooks: [
     {
-      type: Object,
-      unique: false,
-      required: false,
-      default: false,
+      id: {
+        type: Object,
+        unique: false,
+        required: false,
+        default: false,
+      },
     },
   ],
   confirmation: {

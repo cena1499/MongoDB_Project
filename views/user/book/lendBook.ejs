@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin page</title>
+  </head>
+  <body>
+    <div class="display" style="background-color: red"></div>
+    <h1>My Books</h1>
+    <%- include('../../partials/userNavbar'); %>
+
+    <ul></ul>
+    <button class="logout"><a href="/logout">Log Out</a></button>
+    <script>
+      var id_user = "";
+
+      const ul = document.querySelector("ul");
+      const display = document.querySelector(".display");
+
+      const getLendBooks = async () => {
+        const res_id = await fetch(`/api/auth/getID`);
+        const data_id = await res_id.json();
+        id_user = data_id.user;
+        const res = await fetch("/api/auth/getLendBooks", {
+          method: "POST",
+          body: JSON.stringify({
+            id: id_user,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        if (res.status === 400 || res.status === 401) {
+          return (display.textContent = `${data.message}. ${
+            data.error ? data.error : ""
+          }`);
+        }
+
+        ul.innerHTML = "";
+        data.book.map((mappedBook) => {
+          let li = `
+                  <li>
+                    <b>Name</b> => ${mappedBook.name} <br>
+                    <b>Author</b> => ${mappedBook.author} <br>
+                    <b>Number of pages</b> => ${mappedBook.numberOfPages} <br>
+                    <b>Year</b> => ${mappedBook.year} <br>
+                    <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
+                    <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
+
+                    <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br>
+                  </li>
+                  <a href="/user/detail-book/${mappedBook.id}">Detail</a>
+                  <button class="return">Return Book</button>
+                  `;
+          ul.innerHTML += li;
+          const returnBook = document.querySelectorAll(".return");
+
+          returnBook.forEach((button, i) => {
+            button.addEventListener("click", async () => {
+              display.textContent = "";
+              const id = data.book[i]._id;
+              const res = await fetch("/api/auth/returnBook", {
+                method: "PUT",
+                body: JSON.stringify({ idBook: id, idUser: id_user }),
+                headers: { "Content-Type": "application/json" },
+              });
+              const dataReturn = await res.json();
+              if (res.status === 401) {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                return (display.textContent = `${dataReturn.message}. ${
+                  dataReturn.error ? dataReturn.error : ""
+                }`);
+              }
+              location.assign("/user/my-books");
+            });
+          });
+        });
+      };
+      getLendBooks();
+    </script>
+  </body>
+</html>

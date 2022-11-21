@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin page</title>
+  </head>
+  <body>
+    <div class="display" style="background-color: red"></div>
+    <h1>Books</h1>
+    <%- include('../../partials/userNavbar'); %>
+
+    <form id="formFirstName">
+      <label for="name">Name filter</label><br />
+      <input type="text" id="name" /><br />
+
+      <label for="author">Author filter</label><br />
+      <input type="text" id="author" /><br />
+
+      <label for="year">Year filter</label><br />
+      <input type="text" id="year" /><br />
+
+      <div id="filterSort"></div>
+
+      <button type="button" onclick="setNameByAsc()">Name Sort ASC</button>
+      <button type="button" onclick="setNameByDesc()">Name Sort DESC</button>
+      <br />
+      <button type="button" onclick="setAuthorByAsc()">Author Sort ASC</button>
+      <button type="button" onclick="setAuthorByDesc()">
+        Author Sort DESC
+      </button>
+      <br />
+
+      <button type="button" onclick="setYearByAsc()">Year Sort ASC</button>
+      <button type="button" onclick="setYearByDesc()">Year Sort DESC</button>
+
+      <br />
+    </form>
+
+    <ul></ul>
+    <button class="logout"><a href="/logout">Log Out</a></button>
+    <script>
+      var id_user = "";
+      var count = 0;
+
+      const ul = document.querySelector("ul");
+      const display = document.querySelector(".display");
+      const nameFilter = document.querySelector("#name");
+      const authorFilter = document.querySelector("#author");
+      const yearFilter = document.querySelector("#year");
+
+      const filterSort = document.querySelector("#filterSort");
+
+      var sortByName = 0;
+      var sortByAuthor = 0;
+      var sortByYear = 0;
+
+      var setSort = false;
+
+      const setNameByAsc = () => {
+        sortByName = 1;
+        sortByAuthor = 0;
+        sortByYear = 0;
+        filterSort.innerHTML = "Name ASC filter";
+        setSort = true;
+      };
+
+      const setNameByDesc = () => {
+        sortByName = -1;
+        sortByAuthor = 0;
+        sortByYear = 0;
+        filterSort.innerHTML = "Name DSC filter";
+        setSort = true;
+      };
+
+      const setAuthorByAsc = () => {
+        sortByName = 0;
+        sortByAuthor = 1;
+        sortByYear = 0;
+        filterSort.innerHTML = "Author ASC filter";
+        setSort = true;
+      };
+
+      const setAuthorByDesc = () => {
+        sortByName = 0;
+        sortByAuthor = -1;
+        sortByYear = 0;
+        filterSort.innerHTML = "Author DSC filter";
+        setSort = true;
+      };
+
+      const setYearByAsc = () => {
+        sortByName = 0;
+        sortByAuthor = 0;
+        sortByYear = 1;
+        filterSort.innerHTML = "Year ASC filter";
+        setSort = true;
+      };
+
+      const setYearByDesc = () => {
+        sortByName = 0;
+        sortByAuthor = 0;
+        sortByYear = -1;
+        filterSort.innerHTML = "Year DSC filter";
+        setSort = true;
+      };
+
+      const getBooks = async () => {
+        const resID = await fetch(`/api/auth/getID`);
+        const dataID = await resID.json();
+        id_user = dataID.user;
+
+        const resCount = await fetch(`/api/auth/getCountOfLendBooks`);
+        const dataCount = await resCount.json();
+        count = dataCount.user;
+
+        const res = await fetch("/api/auth/getUnLendBooks", {
+          method: "POST",
+          body: JSON.stringify({
+            id: id_user,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        if (res.status === 400 || res.status === 401) {
+          return (display.textContent = `${data.message}. ${
+            data.error ? data.error : ""
+          }`);
+        }
+        ul.innerHTML = "";
+        data.book.map((mappedBook) => {
+          let li = `
+                  <li>
+                    <b>Name</b> => ${mappedBook.name} <br>
+                    <b>Author</b> => ${mappedBook.author} <br>
+                    <b>Number of pages</b> => ${mappedBook.numberOfPages} <br>
+                    <b>Year</b> => ${mappedBook.year} <br>
+                    <b>Titlepage image</b> => <img src="${
+                      mappedBook.titlePageImage
+                    }"> <br>
+                    <b>Coverpage image</b> => <img src="${
+                      mappedBook.coverImage
+                    }"> <br>
+
+                    <b>Number o licenses</b> => ${
+                      mappedBook.numberOfLicense
+                    } <br>
+                    <b>ID</b> => ${mappedBook.id}<br>
+                  </li>
+                  <a href="/user/detail-book/${mappedBook.id}">Detail</a>
+
+                   ${
+                     count < 6
+                       ? `<button class="lendBook">Lend book</button>`
+                       : ""
+                   }
+
+                  `;
+          ul.innerHTML += li;
+          const lendBook = document.querySelectorAll(".lendBook");
+
+          lendBook.forEach((button, i) => {
+            button.addEventListener("click", async () => {
+              display.textContent = "";
+              const id_book = data.book[i].id;
+              //pokud najde shodu u uzivatele nesmi byt tlacitko
+              const res = await fetch(`/api/auth/lendBook`, {
+                method: "PUT",
+                body: JSON.stringify({ idBook: id_book, idUser: id_user }),
+                headers: { "Content-Type": "application/json" },
+              });
+              const dataLend = await res.json();
+              if (res.status === 401) {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                return (display.textContent = `${dataUpdate.message}. ${
+                  dataUpdate.error ? dataUpdate.error : ""
+                }`);
+              }
+              location.assign("/user/books");
+            });
+          });
+        });
+      };
+
+      const getFilterBooks = async (e) => {
+        if (
+          nameFilter.value.length >= 3 ||
+          authorFilter.value.length >= 3 ||
+          yearFilter.value.length >= 3 ||
+          setSort == true
+        ) {
+          e.preventDefault();
+          display.textContent = "";
+          var nameFilterValue = "";
+          var authorFilterValue = "";
+          var yearFilterValue = "";
+
+          if (nameFilter.value.length >= 3) {
+            nameFilterValue = nameFilter.value;
+          }
+          if (authorFilter.value.length >= 3) {
+            authorFilterValue = authorFilter.value;
+          }
+          if (yearFilter.value.length >= 3) {
+            yearFilterValue = yearFilter.value;
+          }
+          try {
+            const res = await fetch("/api/auth/getUnLendBooksWithFilter", {
+              method: "POST",
+              body: JSON.stringify({
+                id: id_user,
+                filterName: nameFilterValue,
+                filterAuthor: authorFilterValue,
+                filterYear: yearFilterValue,
+                sortByName: sortByName,
+                sortByAuthor: sortByAuthor,
+                sortByYear: sortByYear,
+              }),
+              headers: { "Content-Type": "application/json" },
+            });
+            const data = await res.json();
+            if (res.status === 400 || res.status === 401) {
+              return (display.textContent = `${data.message}. ${
+                data.error ? data.error : ""
+              }`);
+            }
+
+            if (data.book.length == 0) {
+              ul.innerHTML = "";
+            }
+
+            ul.innerHTML = "";
+            data.book.map((mappedBook) => {
+              let li = `
+                  <li>
+                    <b>Name</b> => ${mappedBook.name} <br>
+                    <b>Author</b> => ${mappedBook.author} <br>
+                    <b>Number of pages</b> => ${mappedBook.numberOfPages} <br>
+                    <b>Year</b> => ${mappedBook.year} <br>
+                    <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
+                    <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
+
+                    <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br>
+                    <b>ID</b> => ${mappedBook.id}<br>
+                  </li>
+                  <a href="/admin/detail-book/${mappedBook.id}">Detail</a>
+                  <button class="lendBook">Lend book</button>
+                  `;
+              ul.innerHTML += li;
+
+              const lendBook = document.querySelectorAll(".lendBook");
+
+              lendBook.forEach((button, i) => {
+                button.addEventListener("click", async () => {
+                  display.textContent = "";
+                  const id_book = data.book[i].id;
+                  //pokud najde shodu u uzivatele nesmi byt tlacitko
+                  const res = await fetch(`/api/auth/lendBook`, {
+                    method: "PUT",
+                    body: JSON.stringify({ idBook: id_book, idUser: id_user }),
+                    headers: { "Content-Type": "application/json" },
+                  });
+                  const dataLend = await res.json();
+                  if (res.status === 401) {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                    return (display.textContent = `${dataUpdate.message}. ${
+                      dataUpdate.error ? dataUpdate.error : ""
+                    }`);
+                  }
+                  location.assign("/user/books");
+                });
+              });
+            });
+          } catch (err) {
+            console.log(err.message);
+          }
+        } else {
+          getBooks();
+        }
+      };
+
+      formFirstName.addEventListener("keyup", async (e) => {
+        getFilterBooks(e);
+      });
+
+      formFirstName.addEventListener("click", async (e) => {
+        getFilterBooks(e);
+      });
+
+      getBooks();
+    </script>
+  </body>
+</html>

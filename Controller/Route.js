@@ -1,7 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const { register, login, deleteUser, adminAuth, userAuth } = require("./Auth");
+const {
+  register,
+  login,
+  deleteUser,
+  adminAuth,
+  userAuth,
+  loginAuth,
+} = require("./Auth");
 const {
   confirmUser,
   getNumberOfUnconfirmedUsers,
@@ -18,6 +25,12 @@ const {
   editUserByAdmin,
   editUserByUser,
   getID,
+  lendBook,
+  getLendBooks,
+  returnBook,
+  getUnLendBooks,
+  getUnLendBooksWithFilter,
+  getCountOfLendBooks,
 } = require("./User");
 
 const {
@@ -37,7 +50,6 @@ router.route("/getUnconfirmedUsers").get(adminAuth, getUnconfirmedUsers);
 router.route("/createUser").post(adminAuth, createUser);
 router.route("/createBook").post(adminAuth, createBook);
 router.route("/getUsersByFilter").post(adminAuth, getUsersByFilter);
-router.route("/getBooksByFilter").post(adminAuth, getBooksByFilter);
 
 router.route("/banUser").put(adminAuth, banUser);
 router.route("/unbanUser").put(adminAuth, unbanUser);
@@ -50,14 +62,27 @@ router.route("/deleteBook").delete(adminAuth, deleteBook);
 
 //User routes
 router.route("/getID").get(userAuth, getID);
+router.route("/getCountOfLendBooks").get(userAuth, getCountOfLendBooks);
+
 router.route("/editUserByUser/:id").put(userAuth, editUserByUser);
+router.route("/lendBook").put(userAuth, lendBook);
+
+router.route("/getLendBooks").post(userAuth, getLendBooks);
+router.route("/getBooksByFilter").post(userAuth, getBooksByFilter);
+router.route("/getUnLendBooks").post(userAuth, getUnLendBooks);
+router
+  .route("/getUnLendBooksWithFilter")
+  .post(userAuth, getUnLendBooksWithFilter);
+
+router.route("/returnBook").put(userAuth, returnBook);
+
+router.route("/getBooks").get(loginAuth, getBooks);
+router.route("/getBook/:id").get(loginAuth, getBook);
 
 //Normal routes
 router.route("/register").post(register);
 router.route("/login").post(login);
 router.route("/getUsers").get(getUsers);
 router.route("/getUser/:id").get(getUser);
-router.route("/getBooks").get(getBooks);
-router.route("/getBook/:id").get(getBook);
 
 module.exports = router;

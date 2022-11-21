@@ -171,7 +171,6 @@ exports.getBooksByFilter = async (req, res, next) => {
   const sortByYear = req.body.sortByYear;
 
   const container = {};
-  console.log(req.body);
 
   if (sortByName != 0) container.name = sortByName;
   if (sortByAuthor != 0) container.author = sortByAuthor;

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User page</title>
+  </head>
+  <body>
+    <div class="display" style="background-color: red"></div>
+    <h1>Book</h1>
+    <%- include('../../partials/userNavbar'); %>
+    <ul></ul>
+    <button class="logout"><a href="/logout">Log Out</a></button>
+    <script>
+      const ul = document.querySelector("ul");
+      const display = document.querySelector(".display");
+      const getBook = async () => {
+        const url = window.location.href.split("/");
+        const res = await fetch(`/api/auth/getBook/${url.slice(-1).pop()}`);
+        const data = await res.json();
+        let li = `
+            <li>
+                <b>Name</b> => ${data.book.name} <br> 
+                <b>Author</b> => ${data.book.author} <br> 
+                <b>Number of pages</b> => ${data.book.numberOfPages} <br> 
+                <b>Year</b> => ${data.book.year} <br> 
+                <b>Titlepage image</b> => ${data.book.titlePageImage} <br>
+                <b>Titlepage image</b> => <img src="${data.book.titlePageImage}"> <br>
+                <b>Coverpage image</b> => <img src="${data.book.coverImage}"> <br>
+
+                <b>Number o licenses</b> => ${data.book.numberOfLicense} <br> 
+                <b>ID</b> => ${data.book.id}<br> 
+              </li> 
+              `;
+        ul.innerHTML += li;
+      };
+      getBook();
+    </script>
+  </body>
+</html>

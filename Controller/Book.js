@@ -116,7 +116,7 @@ exports.deleteBook = async (req, res, next) => {
   await Book.findById(id)
     .then((book) => book.remove())
     .then((book) =>
-      res.status(201).json({ message: "User successfully deleted", user })
+      res.status(201).json({ message: "User successfully deleted" })
     )
     .catch((error) =>
       res
