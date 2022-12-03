@@ -11,14 +11,78 @@
     <h1>User</h1>
     <%- include('../../partials/adminNavbar'); %>
     <ul></ul>
+    <h3>Books</h3>
+    <div class="books"></div>
     <button class="logout"><a href="/logout">Log Out</a></button>
+    <hr />
+    <h3>Unlend books</h3>
+    <form id="formFirstName">
+      <label for="name">Name filter</label><br />
+      <input type="text" id="name" /><br />
+
+      <label for="author">Author filter</label><br />
+      <input type="text" id="author" /><br />
+
+      <label for="year">Year filter</label><br />
+      <input type="text" id="year" /><br />
+
+      <div id="filterSort"></div>
+
+      <button type="button" onclick="setNameByAsc()">Name Sort ASC</button>
+      <button type="button" onclick="setNameByDesc()">Name Sort DESC</button>
+      <br />
+      <button type="button" onclick="setAuthorByAsc()">Author Sort ASC</button>
+      <button type="button" onclick="setAuthorByDesc()">
+        Author Sort DESC
+      </button>
+      <br />
+
+      <button type="button" onclick="setYearByAsc()">Year Sort ASC</button>
+      <button type="button" onclick="setYearByDesc()">Year Sort DESC</button>
+
+      <br />
+    </form>
+    <ul class="unLendBooks"></ul>
     <script>
       const ul = document.querySelector("ul");
+      const booksDiv = document.querySelector(".books");
       const display = document.querySelector(".display");
+
+      var count = 0;
+      var id_user = "";
+
+      const unLendUl = document.querySelector(".unLendBooks");
+      const nameFilter = document.querySelector("#name");
+      const authorFilter = document.querySelector("#author");
+      const yearFilter = document.querySelector("#year");
+
+      const filterSort = document.querySelector("#filterSort");
+
+      var sortByName = 0;
+      var sortByAuthor = 0;
+      var sortByYear = 0;
+
+      var setSort = false;
+
       const getUser = async () => {
         const url = window.location.href.split("/");
         const res = await fetch(`/api/auth/getUser/${url.slice(-1).pop()}`);
         const data = await res.json();
+
+        id_user = data.user.id;
+        const resBooks = await fetch("/api/auth/getLendBooks", {
+          method: "POST",
+          body: JSON.stringify({
+            id: data.user.id,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
+        const dataBooks = await resBooks.json();
+        if (resBooks.status === 400 || resBooks.status === 401) {
+          return (display.textContent = `${dataBooks.message}. ${
+            dataBooks.error ? dataBooks.error : ""
+          }`);
+        }
         let li = `
               <li>
                 <b>Firstname</b> => ${data.user.firstname} <br> 
@@ -47,8 +111,286 @@
               <button class="delete">Delete User</button>
               `;
         ul.innerHTML += li;
+
+        booksDiv.innerHTML = "";
+        dataBooks.book.map((mappedBook) => {
+          let div = `
+                  <li>
+                    <b>Name</b> => ${mappedBook.name} <br>
+                    <b>Author</b> => ${mappedBook.author} <br>
+                    <b>Number of pages</b> => ${mappedBook.numberOfPages} <br>
+                    <b>Year</b> => ${mappedBook.year} <br>
+                    <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
+                    <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
+
+                    <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br>
+                  </li>
+                  <a href="/admin/detail-book/${mappedBook._id}">Detail</a>
+                  <button class="return">Return Book</button>
+                  `;
+          booksDiv.innerHTML += div;
+          const returnBook = document.querySelectorAll(".return");
+
+          returnBook.forEach((button, i) => {
+            button.addEventListener("click", async () => {
+              display.textContent = "";
+              const id = dataBooks.book[i]._id;
+              console.log("dsads");
+              const res = await fetch("/api/auth/returnBook", {
+                method: "PUT",
+                body: JSON.stringify({ idBook: id, idUser: data.user.id }),
+                headers: { "Content-Type": "application/json" },
+              });
+              const dataReturn = await res.json();
+              if (res.status === 401) {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                return (display.textContent = `${dataReturn.message}. ${
+                  dataReturn.error ? dataReturn.error : ""
+                }`);
+              }
+              location.assign(`/admin/detail-user/${data.user.id}`);
+            });
+          });
+        });
       };
+
+      const setNameByAsc = () => {
+        sortByName = 1;
+        sortByAuthor = 0;
+        sortByYear = 0;
+        filterSort.innerHTML = "Name ASC filter";
+        setSort = true;
+      };
+
+      const setNameByDesc = () => {
+        sortByName = -1;
+        sortByAuthor = 0;
+        sortByYear = 0;
+        filterSort.innerHTML = "Name DSC filter";
+        setSort = true;
+      };
+
+      const setAuthorByAsc = () => {
+        sortByName = 0;
+        sortByAuthor = 1;
+        sortByYear = 0;
+        filterSort.innerHTML = "Author ASC filter";
+        setSort = true;
+      };
+
+      const setAuthorByDesc = () => {
+        sortByName = 0;
+        sortByAuthor = -1;
+        sortByYear = 0;
+        filterSort.innerHTML = "Author DSC filter";
+        setSort = true;
+      };
+
+      const setYearByAsc = () => {
+        sortByName = 0;
+        sortByAuthor = 0;
+        sortByYear = 1;
+        filterSort.innerHTML = "Year ASC filter";
+        setSort = true;
+      };
+
+      const setYearByDesc = () => {
+        sortByName = 0;
+        sortByAuthor = 0;
+        sortByYear = -1;
+        filterSort.innerHTML = "Year DSC filter";
+        setSort = true;
+      };
+
+      const getBooks = async () => {
+        const url = window.location.href.split("/");
+        id_user = url.slice(-1).pop();
+
+        const resCount = await fetch(`/api/auth/getCountOfLendBooks`);
+        const dataCount = await resCount.json();
+        count = dataCount.user;
+
+        const res = await fetch("/api/auth/getUnLendBooks", {
+          method: "POST",
+          body: JSON.stringify({
+            id: id_user,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+        if (res.status === 400 || res.status === 401) {
+          return (display.textContent = `${data.message}. ${
+            data.error ? data.error : ""
+          }`);
+        }
+        unLendUl.innerHTML = "";
+        data.book.map((mappedBook) => {
+          let li = `
+                  <li>
+                    <b>Name</b> => ${mappedBook.name} <br>
+                    <b>Author</b> => ${mappedBook.author} <br>
+                    <b>Number of pages</b> => ${mappedBook.numberOfPages} <br>
+                    <b>Year</b> => ${mappedBook.year} <br>
+                    <b>Titlepage image</b> => <img src="${
+                      mappedBook.titlePageImage
+                    }"> <br>
+                    <b>Coverpage image</b> => <img src="${
+                      mappedBook.coverImage
+                    }"> <br>
+
+                    <b>Number o licenses</b> => ${
+                      mappedBook.numberOfLicense
+                    } <br>
+                    <b>ID</b> => ${mappedBook.id}<br>
+                  </li>
+                  <a href="/admin/detail-book/${mappedBook.id}">Detail</a>
+
+                   ${
+                     count < 6 && mappedBook.numberOfLicense > 0
+                       ? `<button class="lendBook">Lend book to user</button>`
+                       : `<button hidden class="lendBook"></button>`
+                   }
+
+                  `;
+          unLendUl.innerHTML += li;
+          const lendBook = document.querySelectorAll(".lendBook");
+
+          lendBook.forEach((button, i) => {
+            button.addEventListener("click", async () => {
+              display.textContent = "";
+              const id_book = data.book[i].id;
+              //pokud najde shodu u uzivatele nesmi byt tlacitko
+              const res = await fetch(`/api/auth/lendBook`, {
+                method: "PUT",
+                body: JSON.stringify({ idBook: id_book, idUser: id_user }),
+                headers: { "Content-Type": "application/json" },
+              });
+              const dataLend = await res.json();
+              if (res.status === 401) {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                return (display.textContent = `${dataUpdate.message}. ${
+                  dataUpdate.error ? dataUpdate.error : ""
+                }`);
+              }
+              location.assign(`/admin/detail-user/${id_user}`);
+            });
+          });
+        });
+      };
+
+      const getFilterBooks = async (e) => {
+        if (
+          nameFilter.value.length >= 3 ||
+          authorFilter.value.length >= 3 ||
+          yearFilter.value.length >= 3 ||
+          setSort == true
+        ) {
+          e.preventDefault();
+          display.textContent = "";
+          var nameFilterValue = "";
+          var authorFilterValue = "";
+          var yearFilterValue = "";
+
+          if (nameFilter.value.length >= 3) {
+            nameFilterValue = nameFilter.value;
+          }
+          if (authorFilter.value.length >= 3) {
+            authorFilterValue = authorFilter.value;
+          }
+          if (yearFilter.value.length >= 3) {
+            yearFilterValue = yearFilter.value;
+          }
+          try {
+            const res = await fetch("/api/auth/getUnLendBooksWithFilter", {
+              method: "POST",
+              body: JSON.stringify({
+                id: id_user,
+                filterName: nameFilterValue,
+                filterAuthor: authorFilterValue,
+                filterYear: yearFilterValue,
+                sortByName: sortByName,
+                sortByAuthor: sortByAuthor,
+                sortByYear: sortByYear,
+              }),
+              headers: { "Content-Type": "application/json" },
+            });
+            const data = await res.json();
+            if (res.status === 400 || res.status === 401) {
+              return (display.textContent = `${data.message}. ${
+                data.error ? data.error : ""
+              }`);
+            }
+
+            if (data.book.length == 0) {
+              unLendUl.innerHTML = "";
+            }
+
+            unLendUl.innerHTML = "";
+            data.book.map((mappedBook) => {
+              let li = `
+                  <li>
+                    <b>Name</b> => ${mappedBook.name} <br>
+                    <b>Author</b> => ${mappedBook.author} <br>
+                    <b>Number of pages</b> => ${mappedBook.numberOfPages} <br>
+                    <b>Year</b> => ${mappedBook.year} <br>
+                    <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
+                    <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
+
+                    <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br>
+                    <b>ID</b> => ${mappedBook.id}<br>
+                  </li>
+                  <a href="/admin/detail-book/${mappedBook.id}">Detail</a>
+                  <button class="lendBook">Lend book</button>
+                  `;
+              unLendUl.innerHTML += li;
+
+              const lendBook = document.querySelectorAll(".lendBook");
+
+              lendBook.forEach((button, i) => {
+                button.addEventListener("click", async () => {
+                  display.textContent = "";
+                  const id_book = data.book[i].id;
+                  //pokud najde shodu u uzivatele nesmi byt tlacitko
+                  const res = await fetch(`/api/auth/lendBook`, {
+                    method: "PUT",
+                    body: JSON.stringify({
+                      idBook: id_book,
+                      idUser: id_user,
+                    }),
+                    headers: { "Content-Type": "application/json" },
+                  });
+                  const dataLend = await res.json();
+                  if (res.status === 401) {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                    return (display.textContent = `${dataUpdate.message}. ${
+                      dataUpdate.error ? dataUpdate.error : ""
+                    }`);
+                  }
+                  location.assign(`/admin/detail-user/${id_user}`);
+                });
+              });
+            });
+          } catch (err) {
+            console.log(err.message);
+          }
+        } else {
+          getBooks();
+        }
+      };
+
+      formFirstName.addEventListener("keyup", async (e) => {
+        getFilterBooks(e);
+      });
+
+      formFirstName.addEventListener("click", async (e) => {
+        getFilterBooks(e);
+      });
+
       getUser();
+      getBooks();
     </script>
   </body>
 </html>

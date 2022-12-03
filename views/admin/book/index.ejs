@@ -34,7 +34,6 @@
 
       <button type="button" onclick="setYearByAsc()">Year Sort ASC</button>
       <button type="button" onclick="setYearByDesc()">Year Sort DESC</button>
-
       <br />
     </form>
 
@@ -207,7 +206,8 @@
                 <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
                 <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
 
-                <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br> 
+                <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br>
+
                 <b>ID</b> => ${mappedBook.id}<br> 
               </li> 
               <a href="/admin/detail-book/${mappedBook.id}">Detail</a>

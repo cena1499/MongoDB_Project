@@ -209,6 +209,23 @@ exports.lendBook = async (req, res, next) => {
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
     );
+
+  await Book.findById(idBook)
+    .then((book) => {
+      book.numberOfLendLicense = book.numberOfLendLicense - 1;
+      book.save((err) => {
+        //Monogodb error checker
+        if (err) {
+          res
+            .status("400")
+            .json({ message: "An error occurred", error: err.message });
+          process.exit(1);
+        }
+      });
+    })
+    .catch((err) =>
+      res.status(401).json({ message: "Not successful", error: err.message })
+    );
 };
 
 exports.returnBook = async (req, res, next) => {
@@ -219,7 +236,23 @@ exports.returnBook = async (req, res, next) => {
     { $pull: { lendBooks: { id: idBook } } }
   )
     .then((user) => {
-      res.status(201).json({ message: "Book successfully deleted" });
+      res.status(201).json({ message: "Book successfully lent" });
+    })
+    .catch((err) =>
+      res.status(401).json({ message: "Not successful", error: err.message })
+    );
+  await Book.findById(idBook)
+    .then((book) => {
+      book.numberOfLendLicense = book.numberOfLendLicense + 1;
+      book.save((err) => {
+        //Monogodb error checker
+        if (err) {
+          res
+            .status("400")
+            .json({ message: "An error occurred", error: err.message });
+          process.exit(1);
+        }
+      });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
@@ -275,7 +308,7 @@ exports.getUnLendBooks = async (req, res, next) => {
         container.year = book.year;
         container.titlePageImage = book.titlePageImage;
         container.coverImage = book.coverImage;
-        container.numberOfLicense = book.numberOfLicense;
+        container.numberOfLicense = book.numberOfLendLicense;
         container.id = book._id;
         return container;
       });
@@ -328,7 +361,7 @@ exports.getUnLendBooksWithFilter = async (req, res, next) => {
         container.year = book.year;
         container.titlePageImage = book.titlePageImage;
         container.coverImage = book.coverImage;
-        container.numberOfLicense = book.numberOfLicense;
+        container.numberOfLicense = book.numberOfLendLicense;
         container.id = book._id;
         return container;
       });
@@ -348,7 +381,11 @@ exports.getCountOfLendBooks = async (req, res, next) => {
       } else {
         User.findById(decodedToken.id)
           .then((user) => {
-            res.status(200).json({ user: user.lendBooks.length });
+            if (user.confirmation === true && user.ban === false) {
+              res.status(200).json({ user: user.lendBooks.length });
+            } else {
+              res.status(200).json({ user: 6 });
+            }
           })
           .catch((err) =>
             res

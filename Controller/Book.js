@@ -52,6 +52,8 @@ exports.createBook = async (req, res, next) => {
     numberOfLicense,
   } = req.body;
 
+  const numberOfLendLicense = numberOfLicense;
+
   await Book.create({
     name,
     author,
@@ -60,6 +62,7 @@ exports.createBook = async (req, res, next) => {
     titlePageImage,
     coverImage,
     numberOfLicense,
+    numberOfLendLicense,
   })
     .then((book) => {
       res.status(201).json({
@@ -94,6 +97,7 @@ exports.editBook = async (req, res, next) => {
       book.titlePageImage = titlePageImage;
       book.coverImage = coverImage;
       book.numberOfLicense = numberOfLicense;
+      book.numberOfLendLicense = numberOfLicense;
       book.save((err) => {
         //Monogodb error checker
         if (err) {
@@ -114,9 +118,17 @@ exports.deleteBook = async (req, res, next) => {
   const { id } = req.body;
   //Osetrit jestli neni pujcena
   await Book.findById(id)
-    .then((book) => book.remove())
+    .then((book) => {
+      if (book.numberOfLendLicense === book.numberOfLicense) {
+        book.remove();
+      } else {
+        res
+          .status(400)
+          .json({ message: "This book is lend", error: error.message });
+      }
+    })
     .then((book) =>
-      res.status(201).json({ message: "User successfully deleted" })
+      res.status(201).json({ message: "Book successfully deleted" })
     )
     .catch((error) =>
       res

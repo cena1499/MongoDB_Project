@@ -36,6 +36,11 @@ const BookSchema = new Mongoose.Schema({
     unique: false,
     required: true,
   },
+  numberOfLendLicense: {
+    type: Number,
+    unique: false,
+    required: true,
+  },
 });
 
 const Book = Mongoose.model("book", BookSchema);

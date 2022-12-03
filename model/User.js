@@ -1,5 +1,16 @@
 // user.js
 const Mongoose = require("mongoose");
+
+const oneBook = new Mongoose.Schema({
+  id: {
+    type: Object,
+    unique: false,
+    required: false,
+    default: false,
+  },
+  expireAt: { type: Date, default: Date.now, expires: 60 }, // expired in 2 hours
+});
+
 const UserSchema = new Mongoose.Schema({
   firstname: {
     type: String,

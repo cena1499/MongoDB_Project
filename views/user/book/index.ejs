@@ -151,9 +151,9 @@
                   <a href="/user/detail-book/${mappedBook.id}">Detail</a>
 
                    ${
-                     count < 6
+                     count < 6 && mappedBook.numberOfLicense > 0
                        ? `<button class="lendBook">Lend book</button>`
-                       : ""
+                       : `<button hidden class="lendBook">Lend book</button>`
                    }
 
                   `;

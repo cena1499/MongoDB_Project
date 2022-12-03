@@ -61,20 +61,20 @@ router.route("/deleteUser").delete(adminAuth, deleteUser);
 router.route("/deleteBook").delete(adminAuth, deleteBook);
 
 //User routes
-router.route("/getID").get(userAuth, getID);
-router.route("/getCountOfLendBooks").get(userAuth, getCountOfLendBooks);
+router.route("/getID").get(loginAuth, getID);
+router.route("/getCountOfLendBooks").get(loginAuth, getCountOfLendBooks);
 
 router.route("/editUserByUser/:id").put(userAuth, editUserByUser);
-router.route("/lendBook").put(userAuth, lendBook);
+router.route("/lendBook").put(loginAuth, lendBook);
 
-router.route("/getLendBooks").post(userAuth, getLendBooks);
-router.route("/getBooksByFilter").post(userAuth, getBooksByFilter);
-router.route("/getUnLendBooks").post(userAuth, getUnLendBooks);
+router.route("/getLendBooks").post(loginAuth, getLendBooks);
+router.route("/getBooksByFilter").post(loginAuth, getBooksByFilter);
+router.route("/getUnLendBooks").post(loginAuth, getUnLendBooks);
 router
   .route("/getUnLendBooksWithFilter")
-  .post(userAuth, getUnLendBooksWithFilter);
+  .post(loginAuth, getUnLendBooksWithFilter);
 
-router.route("/returnBook").put(userAuth, returnBook);
+router.route("/returnBook").put(loginAuth, returnBook);
 
 router.route("/getBooks").get(loginAuth, getBooks);
 router.route("/getBook/:id").get(loginAuth, getBook);

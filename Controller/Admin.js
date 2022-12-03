@@ -193,6 +193,7 @@ exports.getBooksByFilter = async (req, res, next) => {
         container.titlePageImage = book.titlePageImage;
         container.coverImage = book.coverImage;
         container.numberOfLicense = book.numberOfLicense;
+        container.numberOfLendLicense = book.numberOfLendLicense;
         container.id = book._id;
         return container;
       });

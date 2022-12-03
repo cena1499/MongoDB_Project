@@ -16,6 +16,14 @@
       const ul = document.querySelector("ul");
       const display = document.querySelector(".display");
       const getBook = async () => {
+        const resID = await fetch(`/api/auth/getID`);
+        const dataID = await resID.json();
+        id_user = dataID.user;
+
+        const resCount = await fetch(`/api/auth/getCountOfLendBooks`);
+        const dataCount = await resCount.json();
+        count = dataCount.user;
+
         const url = window.location.href.split("/");
         const res = await fetch(`/api/auth/getBook/${url.slice(-1).pop()}`);
         const data = await res.json();
@@ -26,14 +34,43 @@
                 <b>Number of pages</b> => ${data.book.numberOfPages} <br> 
                 <b>Year</b> => ${data.book.year} <br> 
                 <b>Titlepage image</b> => ${data.book.titlePageImage} <br>
-                <b>Titlepage image</b> => <img src="${data.book.titlePageImage}"> <br>
-                <b>Coverpage image</b> => <img src="${data.book.coverImage}"> <br>
+                <b>Titlepage image</b> => <img src="${
+                  data.book.titlePageImage
+                }"> <br>
+                <b>Coverpage image</b> => <img src="${
+                  data.book.coverImage
+                }"> <br>
 
                 <b>Number o licenses</b> => ${data.book.numberOfLicense} <br> 
                 <b>ID</b> => ${data.book.id}<br> 
+
+                ${
+                  count < 6 ? `<button class="lendBook">Lend book</button>` : ""
+                }
               </li> 
               `;
         ul.innerHTML += li;
+
+        const lendBook = document.querySelector(".lendBook");
+
+        lendBook.addEventListener("click", async () => {
+          display.textContent = "";
+          const id = data.book.id;
+          const res = await fetch("/api/auth/lendBook", {
+            method: "PUT",
+            body: JSON.stringify({ idBook: id, idUser: id_user }),
+            headers: { "Content-Type": "application/json" },
+          });
+          const dataLend = await res.json();
+          if (res.status === 401) {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            return (display.textContent = `${dataUpdate.message}. ${
+              dataUpdate.error ? dataUpdate.error : ""
+            }`);
+          }
+          location.assign("/user/books");
+        });
       };
       getBook();
     </script>
