@@ -1,9 +1,11 @@
 const Book = require("../model/Book");
+const LendBook = require("../model/LendBook");
 
 exports.getBooks = async (req, res, next) => {
+  var bookFunction;
   await Book.find({})
     .then((books) => {
-      const bookFunction = books.map((book) => {
+      bookFunction = books.map((book) => {
         const container = {};
         container.name = book.name;
         container.author = book.author;
@@ -15,11 +17,73 @@ exports.getBooks = async (req, res, next) => {
         container.id = book._id;
         return container;
       });
-      res.status(200).json({ book: bookFunction });
+      //res.status(200).json({ book: bookFunction });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
     );
+
+  for (const book of bookFunction) {
+    const licence = await LendBook.countDocuments({
+      bookID: book.id,
+    });
+    book.numberOfLicense = book.numberOfLicense - licence;
+    //console.log(book.numberOfLicense);
+  }
+
+  res.status(200).json({ book: bookFunction });
+};
+
+exports.getBooksWithFilter = async (req, res, next) => {
+  const regexName = req.body.filterName;
+  const regexAuthor = req.body.filterAuthor;
+  const regexYear = req.body.filterYear;
+  const sortByName = req.body.sortByName;
+  const sortByAuthor = req.body.sortByAuthor;
+  const sortByYear = req.body.sortByYear;
+
+  const container = {};
+  var bookFunction;
+
+  if (sortByName != 0) container.name = sortByName;
+  if (sortByAuthor != 0) container.author = sortByAuthor;
+  if (sortByYear != 0) container.year = sortByYear;
+
+  await Book.find({
+    name: { $regex: regexName, $options: "i" },
+    author: { $regex: regexAuthor, $options: "i" },
+    year: { $regex: regexYear, $options: "i" },
+  })
+    .collation({ locale: "en" })
+    .sort(container)
+    .then((books) => {
+      bookFunction = books.map((book) => {
+        //VYRESIT POCET LICENCI
+        const container = {};
+        container.name = book.name;
+        container.author = book.author;
+        container.numberOfPages = book.numberOfPages;
+        container.year = book.year;
+        container.titlePageImage = book.titlePageImage;
+        container.coverImage = book.coverImage;
+        container.numberOfLicense = book.numberOfLicense;
+        container.id = book._id;
+        return container;
+      });
+      //res.status(200).json({ book: bookFunction });
+    })
+    .catch((err) =>
+      res.status(401).json({ message: "Not successful", error: err.message })
+    );
+
+  for (const book of bookFunction) {
+    const licence = await LendBook.countDocuments({
+      bookID: book.id,
+    });
+    book.numberOfLicense = book.numberOfLicense - licence;
+  }
+
+  res.status(200).json({ book: bookFunction });
 };
 
 exports.getBook = async (req, res, next) => {
@@ -97,7 +161,6 @@ exports.editBook = async (req, res, next) => {
       book.titlePageImage = titlePageImage;
       book.coverImage = coverImage;
       book.numberOfLicense = numberOfLicense;
-      book.numberOfLendLicense = numberOfLicense;
       book.save((err) => {
         //Monogodb error checker
         if (err) {

@@ -105,6 +105,7 @@
       const getBooks = async () => {
         const res = await fetch("/api/auth/getBooks");
         const data = await res.json();
+        console.log("NO");
         ul.innerHTML = "";
         data.book.map((mappedBook) => {
           let li = `
@@ -172,7 +173,7 @@
             yearFilterValue = yearFilter.value;
           }
           try {
-            const res = await fetch("/api/auth/getBooksByFilter", {
+            const res = await fetch("/api/auth/getBooksWithFilter", {
               method: "POST",
               body: JSON.stringify({
                 filterName: nameFilterValue,
@@ -184,6 +185,7 @@
               }),
               headers: { "Content-Type": "application/json" },
             });
+            console.log("DSDSA");
             const data = await res.json();
             if (res.status === 400 || res.status === 401) {
               return (display.textContent = `${data.message}. ${

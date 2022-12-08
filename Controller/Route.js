@@ -36,6 +36,7 @@ const {
 const {
   createBook,
   getBooks,
+  getBooksWithFilter,
   getBook,
   editBook,
   deleteBook,
@@ -56,6 +57,7 @@ router.route("/unbanUser").put(adminAuth, unbanUser);
 router.route("/confirmUser").put(adminAuth, confirmUser);
 router.route("/editUserByAdmin/:id").put(adminAuth, editUserByAdmin);
 router.route("/editBook/:id").put(adminAuth, editBook);
+router.route("/getBooksWithFilter").post(adminAuth, getBooksWithFilter);
 
 router.route("/deleteUser").delete(adminAuth, deleteUser);
 router.route("/deleteBook").delete(adminAuth, deleteBook);
