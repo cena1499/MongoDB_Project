@@ -105,7 +105,6 @@
       const getBooks = async () => {
         const res = await fetch("/api/auth/getBooks");
         const data = await res.json();
-        console.log("NO");
         ul.innerHTML = "";
         data.book.map((mappedBook) => {
           let li = `
@@ -114,15 +113,24 @@
                 <b>Author</b> => ${mappedBook.author} <br> 
                 <b>Number of pages</b> => ${mappedBook.numberOfPages} <br> 
                 <b>Year</b> => ${mappedBook.year} <br> 
-                <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
-                <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
+                <b>Titlepage image</b> => <img src="${
+                  mappedBook.titlePageImage
+                }"> <br>
+                <b>Coverpage image</b> => <img src="${
+                  mappedBook.coverImage
+                }"> <br>
 
                 <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br> 
                 <b>ID</b> => ${mappedBook.id}<br> 
               </li> 
               <a href="/admin/detail-book/${mappedBook.id}">Detail</a>
               <a href="/admin/edit-book/${mappedBook.id}">Edit</a>
-              <button class="delete">Delete Book</button>
+              ${
+                mappedBook.numberOfLicense !==
+                mappedBook.originalNumberOfLicense
+                  ? `<div>You don't can delete, book was lended</div><button class="delete" hidden></div>`
+                  : `<button class="delete">Delete Book</button>`
+              }
               `;
           ul.innerHTML += li;
           const deleteBook = document.querySelectorAll(".delete");
@@ -205,8 +213,12 @@
                 <b>Author</b> => ${mappedBook.author} <br> 
                 <b>Number of pages</b> => ${mappedBook.numberOfPages} <br> 
                 <b>Year</b> => ${mappedBook.year} <br> 
-                <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
-                <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
+                <b>Titlepage image</b> => <img src="${
+                  mappedBook.titlePageImage
+                }"> <br>
+                <b>Coverpage image</b> => <img src="${
+                  mappedBook.coverImage
+                }"> <br>
 
                 <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br>
 
@@ -214,8 +226,12 @@
               </li> 
               <a href="/admin/detail-book/${mappedBook.id}">Detail</a>
               <a href="/admin/edit-book/${mappedBook.id}">Edit</a>
-              <button class="delete">Delete Book</button>
-              `;
+              ${
+                mappedBook.numberOfLicense !==
+                mappedBook.originalNumberOfLicense
+                  ? `<div>You don't can delete, book was lended</div>`
+                  : `<button class="delete">Delete Book</button>`
+              }`;
               ul.innerHTML += li;
               const deleteBook = document.querySelectorAll(".delete");
 

@@ -112,6 +112,57 @@
               `;
         ul.innerHTML += li;
 
+        const banUser = document.querySelector(".ban");
+        const confirmUser = document.querySelector(".confirm");
+
+        confirmUser.addEventListener("click", async () => {
+          display.textContent = "";
+          const id = data.user.id;
+          const confirmation = data.user.confirmation;
+          const res = await fetch("/api/auth/confirmUser", {
+            method: "PUT",
+            body: JSON.stringify({ confirmation, id }),
+            headers: { "Content-Type": "application/json" },
+          });
+          const dataUpdate = await res.json();
+          if (res.status === 400 || res.status === 401) {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            return (display.textContent = `${dataUpdate.message}. ${
+              dataUpdate.error ? dataUpdate.error : ""
+            }`);
+          }
+          location.assign(`/admin/detail-user/${id}`);
+        });
+
+        banUser.addEventListener("click", async () => {
+          display.textContent = "";
+          const id = data.user.id;
+          const ban = data.user.ban;
+          if (ban == false) {
+            const res = await fetch("/api/auth/banUser", {
+              method: "PUT",
+              body: JSON.stringify({ ban, id }),
+              headers: { "Content-Type": "application/json" },
+            });
+            const dataUpdate = await res.json();
+          } else {
+            const res = await fetch("/api/auth/unbanUser", {
+              method: "PUT",
+              body: JSON.stringify({ ban, id }),
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+          if (res.status === 400 || res.status === 401) {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            return (display.textContent = `${dataUpdate.message}. ${
+              dataUpdate.error ? dataUpdate.error : ""
+            }`);
+          }
+          location.assign(`/admin/detail-user/${id}`);
+        });
+
         booksDiv.innerHTML = "";
         dataBooks.book.map((mappedBook) => {
           let div = `

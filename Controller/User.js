@@ -240,9 +240,10 @@ exports.lendBook = async (req, res, next) => {
         })
       );
 
+    /*
     await Book.findById(idBook)
       .then((book) => {
-        book.numberOfLendLicense = book.numberOfLendLicense - 1;
+        book.numberOfLicense = book.numberOfLicense - 1;
         book.save((err) => {
           //Monogodb error checker
           if (err) {
@@ -256,6 +257,7 @@ exports.lendBook = async (req, res, next) => {
       .catch((err) =>
         res.status(401).json({ message: "Not successful", error: err.message })
       );
+      */
   }
 };
 
@@ -274,7 +276,7 @@ exports.returnBook = async (req, res, next) => {
     );*/
 
   //LendBook
-  await LendBook.findOne({ bookID: idBook }, { userID: idUser })
+  await LendBook.findOne({ userID: idUser, bookID: idBook })
     .then((book) => {
       book.remove();
     })
@@ -287,9 +289,10 @@ exports.returnBook = async (req, res, next) => {
         .json({ message: "An error occurred", error: error.message })
     );
 
+  /*
   await Book.findById(idBook)
     .then((book) => {
-      book.numberOfLendLicense = book.numberOfLendLicense + 1;
+      book.numberOfLicense = book.numberOfLicense + 1;
       book.save((err) => {
         //Monogodb error checker
         if (err) {
@@ -302,7 +305,7 @@ exports.returnBook = async (req, res, next) => {
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
-    );
+    );*/
 };
 
 exports.getLendBooks = async (req, res, next) => {
@@ -512,7 +515,7 @@ exports.getUnLendBooksWithFilter = async (req, res, next) => {
         container.id = book._id;
         return container;
       });
-      res.status(200).json({ book: bookFunction });
+      //res.status(200).json({ book: bookFunction });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })

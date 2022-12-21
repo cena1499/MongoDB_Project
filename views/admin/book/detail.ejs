@@ -21,20 +21,28 @@
         const data = await res.json();
         let li = `
             <li>
-                <b>Name</b> => ${data.book.name} <br> 
-                <b>Author</b> => ${data.book.author} <br> 
-                <b>Number of pages</b> => ${data.book.numberOfPages} <br> 
-                <b>Year</b> => ${data.book.year} <br> 
+                <b>Name</b> => ${data.book.name} <br>
+                <b>Author</b> => ${data.book.author} <br>
+                <b>Number of pages</b> => ${data.book.numberOfPages} <br>
+                <b>Year</b> => ${data.book.year} <br>
                 <b>Titlepage image</b> => ${data.book.titlePageImage} <br>
-                <b>Titlepage image</b> => <img src="${data.book.titlePageImage}"> <br>
-                <b>Coverpage image</b> => <img src="${data.book.coverImage}"> <br>
+                <b>Titlepage image</b> => <img src="${
+                  data.book.titlePageImage
+                }"> <br>
+                <b>Coverpage image</b> => <img src="${
+                  data.book.coverImage
+                }"> <br>
 
-                <b>Number o licenses</b> => ${data.book.numberOfLicense} <br> 
-                <b>ID</b> => ${data.book.id}<br> 
-              </li> 
+                <b>Number o licenses</b> => ${data.book.numberOfLicense} <br>
+                <b>ID</b> => ${data.book.id}<br>
+              </li>
               <a href="/admin/detail-book/${data.book.id}">Detail</a>
               <a href="/admin/edit-book/${data.book.id}">Edit</a>
-              <button class="delete">Delete Book</button>
+              ${
+                data.book.numberOfLicense !== data.book.originalNumberOfLicense
+                  ? `<div >You don't can delete, book was lended</div>`
+                  : `<button class="delete">Delete Book</button>`
+              }
               `;
         ul.innerHTML += li;
 

@@ -13,6 +13,7 @@ exports.getBooks = async (req, res, next) => {
         container.year = book.year;
         container.titlePageImage = book.titlePageImage;
         container.coverImage = book.coverImage;
+        container.originalNumberOfLicense = book.numberOfLicense;
         container.numberOfLicense = book.numberOfLicense;
         container.id = book._id;
         return container;
@@ -67,6 +68,7 @@ exports.getBooksWithFilter = async (req, res, next) => {
         container.titlePageImage = book.titlePageImage;
         container.coverImage = book.coverImage;
         container.numberOfLicense = book.numberOfLicense;
+        container.originalNumberOfLicense = book.numberOfLicense;
         container.id = book._id;
         return container;
       });
@@ -87,9 +89,10 @@ exports.getBooksWithFilter = async (req, res, next) => {
 };
 
 exports.getBook = async (req, res, next) => {
+  const container = {};
+
   await Book.findById(req.params.id)
     .then((book) => {
-      const container = {};
       container.name = book.name;
       container.author = book.author;
       container.numberOfPages = book.numberOfPages;
@@ -97,12 +100,19 @@ exports.getBook = async (req, res, next) => {
       container.titlePageImage = book.titlePageImage;
       container.coverImage = book.coverImage;
       container.numberOfLicense = book.numberOfLicense;
+      container.originalNumberOfLicense = book.numberOfLicense;
       container.id = book._id;
-      res.status(200).json({ book: container });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
     );
+
+  const licence = await LendBook.countDocuments({
+    bookID: container.id,
+  });
+  container.numberOfLicense = container.numberOfLicense - licence;
+
+  res.status(200).json({ book: container });
 };
 
 exports.createBook = async (req, res, next) => {
@@ -179,23 +189,36 @@ exports.editBook = async (req, res, next) => {
 
 exports.deleteBook = async (req, res, next) => {
   const { id } = req.body;
-  //Osetrit jestli neni pujcena
-  await Book.findById(id)
-    .then((book) => {
-      if (book.numberOfLendLicense === book.numberOfLicense) {
-        book.remove();
-      } else {
+
+  const container = {};
+  var bookFunction;
+
+  const lendLicences = await LendBook.countDocuments({
+    bookID: id,
+  });
+  if (lendLicences !== 0) {
+    res.status(400).json({
+      message: "You don't can delete this book",
+      error: error.message,
+    });
+  } else {
+    await Book.findById(id)
+      .then((book) => {
+        if (book.numberOfLendLicense === book.numberOfLicense) {
+          book.remove();
+        } else {
+          res
+            .status(400)
+            .json({ message: "This book is lend", error: error.message });
+        }
+      })
+      .then((book) =>
+        res.status(201).json({ message: "Book successfully deleted" })
+      )
+      .catch((error) =>
         res
           .status(400)
-          .json({ message: "This book is lend", error: error.message });
-      }
-    })
-    .then((book) =>
-      res.status(201).json({ message: "Book successfully deleted" })
-    )
-    .catch((error) =>
-      res
-        .status(400)
-        .json({ message: "An error occurred", error: error.message })
-    );
+          .json({ message: "An error occurred", error: error.message })
+      );
+  }
 };
