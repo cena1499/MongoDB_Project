@@ -29,6 +29,9 @@
       <label for="password">Password</label><br />
       <input type="password" id="password" required /><br />
 
+      <label for="confPassword">Confirm Password</label><br />
+      <input type="password" id="confPassword" required /><br />
+
       <input type="submit" value="register" /><br />
     </form>
     <a href="/login">Already registered? Login</a>
@@ -41,6 +44,7 @@
       const address = document.querySelector("#address");
       const username = document.querySelector("#username");
       const password = document.querySelector("#password");
+      const confPassword = document.querySelector("#confPassword");
       const display = document.querySelector(".error");
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -55,6 +59,7 @@
               address: address.value,
               username: username.value,
               password: password.value,
+              confPassword: confPassword.value,
             }),
             headers: { "Content-Type": "application/json" },
           });

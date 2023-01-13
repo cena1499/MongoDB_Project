@@ -14,7 +14,6 @@
     <ul></ul>
     <h3>Books</h3>
     <div class="books"></div>
-    <button class="logout"><a href="/logout">Log Out</a></button>
     <hr />
     <h3>Unlend books</h3>
     <form id="formFirstName">
@@ -268,7 +267,13 @@
         const url = window.location.href.split("/");
         id_user = url.slice(-1).pop();
 
-        const resCount = await fetch(`/api/auth/getCountOfLendBooks`);
+        const resCount = await fetch(`/api/auth/getCountOfLendBooksByAdmin`, {
+          method: "POST",
+          body: JSON.stringify({
+            id: id_user,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
         const dataCount = await resCount.json();
         count = dataCount.user;
 

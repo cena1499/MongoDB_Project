@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const jwtSecret =
   "03f9ac71006511a7c64670966149180e41de642f254623847fd7837f8bc7e0b22a6b33";
 
+//Auth func to control if login user is admin
 exports.adminAuth = (req, res, next) => {
   const token = req.cookies.jwt;
   if (token) {
@@ -27,6 +28,7 @@ exports.adminAuth = (req, res, next) => {
   }
 };
 
+//Auth func to control if login user is normal role
 exports.userAuth = (req, res, next) => {
   const token = req.cookies.jwt;
   if (token) {
@@ -48,6 +50,7 @@ exports.userAuth = (req, res, next) => {
   }
 };
 
+//Auth func to control if user is loggin (role admin or user)
 exports.loginAuth = (req, res, next) => {
   const token = req.cookies.jwt;
   if (token) {
@@ -69,9 +72,22 @@ exports.loginAuth = (req, res, next) => {
   }
 };
 
+//Auth func to create new user
 exports.register = async (req, res, next) => {
-  const { firstname, lastname, personalID, address, username, password } =
-    req.body;
+  const {
+    firstname,
+    lastname,
+    personalID,
+    address,
+    username,
+    password,
+    confPassword,
+  } = req.body;
+
+  if (password !== confPassword) {
+    return res.status(400).json({ message: "Passwords must be same" });
+  }
+
   if (password.length < 6) {
     return res.status(400).json({ message: "Password less than 6 characters" });
   }
@@ -121,6 +137,7 @@ exports.register = async (req, res, next) => {
   });
 };
 
+//Auth func to login user to system
 exports.login = async (req, res, next) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -177,6 +194,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
+//Auth delete user - not using
 exports.deleteUser = async (req, res, next) => {
   const { id } = req.body;
   await User.findById(id)

@@ -6,8 +6,8 @@ const jwtSecret =
   "03f9ac71006511a7c64670966149180e41de642f254623847fd7837f8bc7e0b22a6b33";
 
 const User = require("../model/User");
-const { getBook } = require("./Book");
 
+//Func to get all users
 exports.getUsers = async (req, res, next) => {
   await User.find({})
     .then((users) => {
@@ -33,6 +33,7 @@ exports.getUsers = async (req, res, next) => {
     );
 };
 
+//Func to get one user from id
 exports.getUser = async (req, res, next) => {
   await User.findById(req.params.id)
     .then((user) => {
@@ -55,6 +56,7 @@ exports.getUser = async (req, res, next) => {
     );
 };
 
+//Admin func to get all users without confirm
 exports.getUnconfirmedUsers = async (req, res, next) => {
   await User.find({ confirmation: false })
     .then((users) => {
@@ -80,6 +82,7 @@ exports.getUnconfirmedUsers = async (req, res, next) => {
     );
 };
 
+//Admin func to create user
 exports.createUser = async (req, res, next) => {
   const { firstname, lastname, personalID, address, username, password } =
     req.body;
@@ -110,6 +113,7 @@ exports.createUser = async (req, res, next) => {
   });
 };
 
+//Admin func to edit user by admin
 exports.editUserByAdmin = async (req, res, next) => {
   const { firstname, lastname, personalID, address, username } = req.body;
 
@@ -136,6 +140,7 @@ exports.editUserByAdmin = async (req, res, next) => {
     );
 };
 
+//Func to edit user data
 exports.editUserByUser = async (req, res, next) => {
   const { firstname, lastname, personalID, address, username } = req.body;
 
@@ -163,6 +168,7 @@ exports.editUserByUser = async (req, res, next) => {
     );
 };
 
+//Func to get user ID from token
 exports.getID = async (req, res, next) => {
   var token = req.cookies.jwt;
   if (token) {
@@ -184,36 +190,9 @@ exports.getID = async (req, res, next) => {
   }
 };
 
+//Function to lend book with idBook and idUser
 exports.lendBook = async (req, res, next) => {
   const { idBook, idUser } = req.body;
-  /*
-  await User.findById(idUser)
-    .then((user) => {
-      if (user.lendBooks.length < 6) {
-        user.lendBooks.push({ id: idBook });
-        //user.history.push({ id: idBook });
-        user.save((err) => {
-          //Monogodb error checker
-          if (err) {
-            res
-              .status("400")
-              .json({ message: "An error occurred", error: err.message });
-            process.exit(1);
-          }
-          //res.status("201").json({ message: "Update successful", user });
-        });
-      } else {
-        res
-          .status(401)
-          .json({ message: "Not successful", error: "Max 6 book" });
-      }
-    })
-    .catch((err) =>
-      res.status(401).json({ message: "Not successful", error: err.message })
-    );*/
-
-  //LendBook implement
-
   const length = await LendBook.find({ userID: idUser }).catch((error) =>
     res.status(400).json({
       message: "An error occurred",
@@ -221,27 +200,23 @@ exports.lendBook = async (req, res, next) => {
     })
   );
 
+  //Create LendBook in DB
   if (length >= 6) {
     res.status(401).json({ message: "Not successful", error: "Max 6 book" });
   } else {
     await LendBook.create({
       bookID: idBook,
       userID: idUser,
-    })
-      /*.then((book) => {
-        res.status(201).json({
-          message: "Book successfully created",
-        });
-      })*/
-      .catch((error) =>
-        res.status(400).json({
-          message: "Book not successful created",
-          error: error.message,
-        })
-      );
+    }).catch((error) =>
+      res.status(400).json({
+        message: "Book not successful created",
+        error: error.message,
+      })
+    );
 
     const container = {};
 
+    //Find book data to history
     await Book.findById(idBook)
       .then((book) => {
         container.name = book.name;
@@ -258,6 +233,7 @@ exports.lendBook = async (req, res, next) => {
         res.status(401).json({ message: "Not successful", error: err.message })
       );
 
+    //Add history
     await User.findById(idUser)
       .then((user) => {
         console.log(container);
@@ -270,7 +246,6 @@ exports.lendBook = async (req, res, next) => {
           coverImage: container.coverImage,
         });
         user.save((err) => {
-          //Monogodb error checker
           if (err) {
             res
               .status("400")
@@ -285,43 +260,13 @@ exports.lendBook = async (req, res, next) => {
       .catch((err) =>
         res.status(401).json({ message: "Not successful", error: err.message })
       );
-
-    /*
-    await Book.findById(idBook)
-      .then((book) => {
-        book.numberOfLicense = book.numberOfLicense - 1;
-        book.save((err) => {
-          //Monogodb error checker
-          if (err) {
-            res
-              .status("400")
-              .json({ message: "An error occurred", error: err.message });
-            process.exit(1);
-          }
-        });
-      })
-      .catch((err) =>
-        res.status(401).json({ message: "Not successful", error: err.message })
-      );
-      */
   }
 };
 
+//Func to return book from lended books
 exports.returnBook = async (req, res, next) => {
   const { idBook, idUser } = req.body;
-  /*
-  await User.updateOne(
-    { _id: idUser },
-    { $pull: { lendBooks: { id: idBook } } }
-  )
-    .then((user) => {
-      //res.status(201).json({ message: "Book successfully lent" });
-    })
-    .catch((err) =>
-      res.status(401).json({ message: "Not successful", error: err.message })
-    );*/
 
-  //LendBook
   await LendBook.findOne({ userID: idUser, bookID: idBook })
     .then((book) => {
       book.remove();
@@ -334,45 +279,11 @@ exports.returnBook = async (req, res, next) => {
         .status(400)
         .json({ message: "An error occurred", error: error.message })
     );
-
-  /*
-  await Book.findById(idBook)
-    .then((book) => {
-      book.numberOfLicense = book.numberOfLicense + 1;
-      book.save((err) => {
-        //Monogodb error checker
-        if (err) {
-          res
-            .status("400")
-            .json({ message: "An error occurred", error: err.message });
-          process.exit(1);
-        }
-      });
-    })
-    .catch((err) =>
-      res.status(401).json({ message: "Not successful", error: err.message })
-    );*/
 };
 
+//Func to get all lended books from one user
 exports.getLendBooks = async (req, res, next) => {
   const { id } = req.body;
-  /*
-  const user = await User.findById(id).catch((err) =>
-    res.status(401).json({ message: "Not successful", error: err.message })
-  );
-
-  const booksId = [];
-  user.lendBooks.forEach((book) => {
-    booksId.push(book.id);
-  });
-
-  await Book.find({ _id: { $in: booksId } })
-    .then((books) => {
-      //res.status(200).json({ book: books });
-    })
-    .catch((err) =>
-      res.status(401).json({ message: "Not successful", error: err.message })
-    );*/
 
   //LendBooks
   const lendBooks = await LendBook.find({ userID: id }).catch((err) =>
@@ -393,46 +304,10 @@ exports.getLendBooks = async (req, res, next) => {
     );
 };
 
+//Func to get all unlend books from one user
 exports.getUnLendBooks = async (req, res, next) => {
   const { id } = req.body;
-  /*
-  const user = await User.findById(id).catch((err) =>
-    res.status(401).json({ message: "Not successful", error: err.message })
-  );
 
-  const booksId = [];
-  user.lendBooks.forEach((book) => {
-    booksId.push(book.id);
-  });
-
-  const container = {};
-
-  await Book.find({
-    _id: { $nin: booksId },
-  })
-    .collation({ locale: "en" })
-    .sort(container)
-    .then((books) => {
-      const bookFunction = books.map((book) => {
-        const container = {};
-        container.name = book.name;
-        container.author = book.author;
-        container.numberOfPages = book.numberOfPages;
-        container.year = book.year;
-        container.titlePageImage = book.titlePageImage;
-        container.coverImage = book.coverImage;
-        container.numberOfLicense = book.numberOfLendLicense;
-        container.id = book._id;
-        return container;
-      });
-      //res.status(200).json({ book: bookFunction });
-    })
-    .catch((err) =>
-      res.status(401).json({ message: "Not successful", error: err.message })
-    );
-*/
-
-  //LendBooks
   const lendBooks = await LendBook.find({ userID: id }).catch((err) =>
     res.status(401).json({ message: "Not successful", error: err.message })
   );
@@ -460,7 +335,6 @@ exports.getUnLendBooks = async (req, res, next) => {
         container.id = book._id;
         return container;
       });
-      //res.status(200).json({ book: bookFunction });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
@@ -476,17 +350,9 @@ exports.getUnLendBooks = async (req, res, next) => {
   res.status(200).json({ book: bookFunction });
 };
 
+//Func to get all unlend books of one user with filter name, author and year
 exports.getUnLendBooksWithFilter = async (req, res, next) => {
   const { id } = req.body;
-
-  /*const user = await User.findById(id).catch((err) =>
-    res.status(401).json({ message: "Not successful", error: err.message })
-  );
-
-  const booksId = [];
-  user.lendBooks.forEach((book) => {
-    booksId.push(book.id);
-  });*/
 
   const regexName = req.body.filterName;
   const regexAuthor = req.body.filterAuthor;
@@ -502,34 +368,6 @@ exports.getUnLendBooksWithFilter = async (req, res, next) => {
   if (sortByAuthor != 0) container.author = sortByAuthor;
   if (sortByYear != 0) container.year = sortByYear;
 
-  /*await Book.find({
-    _id: { $nin: booksId },
-    name: { $regex: regexName, $options: "i" },
-    author: { $regex: regexAuthor, $options: "i" },
-    year: { $regex: regexYear, $options: "i" },
-  })
-    .collation({ locale: "en" })
-    .sort(container)
-    .then((books) => {
-      const bookFunction = books.map((book) => {
-        const container = {};
-        container.name = book.name;
-        container.author = book.author;
-        container.numberOfPages = book.numberOfPages;
-        container.year = book.year;
-        container.titlePageImage = book.titlePageImage;
-        container.coverImage = book.coverImage;
-        container.numberOfLicense = book.numberOfLendLicense;
-        container.id = book._id;
-        return container;
-      });
-      res.status(200).json({ book: bookFunction });
-    })
-    .catch((err) =>
-      res.status(401).json({ message: "Not successful", error: err.message })
-    );*/
-
-  //LendBooks
   const lendBooks = await LendBook.find({ userID: id }).catch((err) =>
     res.status(401).json({ message: "Not successful", error: err.message })
   );
@@ -549,7 +387,6 @@ exports.getUnLendBooksWithFilter = async (req, res, next) => {
     .sort(container)
     .then((books) => {
       bookFunction = books.map((book) => {
-        //VYRESIT POCET LICENCI
         const container = {};
         container.name = book.name;
         container.author = book.author;
@@ -561,7 +398,6 @@ exports.getUnLendBooksWithFilter = async (req, res, next) => {
         container.id = book._id;
         return container;
       });
-      //res.status(200).json({ book: bookFunction });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
@@ -577,6 +413,7 @@ exports.getUnLendBooksWithFilter = async (req, res, next) => {
   res.status(200).json({ book: bookFunction });
 };
 
+//Func to get number of count books from one user
 exports.getCountOfLendBooks = async (req, res, next) => {
   var token = req.cookies.jwt;
 
@@ -588,7 +425,6 @@ exports.getCountOfLendBooks = async (req, res, next) => {
         User.findById(decodedToken.id)
           .then((user) => {
             if (user.confirmation === true && user.ban === false) {
-              //res.status(200).json({ user: user.lendBooks.length });
               LendBook.find({ userID: user._id })
                 .then((books) => res.status(200).json({ user: books.length }))
                 .catch((error) =>
@@ -611,13 +447,37 @@ exports.getCountOfLendBooks = async (req, res, next) => {
   }
 };
 
+//Admin func to get number of count books from one user
+exports.getCountOfLendBooksByAdmin = async (req, res, next) => {
+  const { id } = req.body;
+
+  User.findById(id)
+    .then((user) => {
+      if (user.confirmation === true && user.ban === false) {
+        LendBook.find({ userID: user._id })
+          .then((books) => res.status(200).json({ user: books.length }))
+          .catch((error) =>
+            res.status(400).json({
+              message: "An error occurred",
+              error: error.message,
+            })
+          );
+      } else {
+        res.status(200).json({ user: 6 });
+      }
+    })
+    .catch((err) =>
+      res.status(401).json({ message: "Not successful", error: err.message })
+    );
+};
+
+//Func to get history of lend books
 exports.getHistoryOfLendBooks = async (req, res, next) => {
   const { id } = req.body;
 
-  //LendBooks
   await User.findById({ _id: id })
     .then((user) => {
-      res.status(200).json({ book: user.history });
+      res.status(200).json({ book: user.history.reverse() });
     })
     .catch((err) =>
       res.status(401).json({ message: "Error", error: err.message })

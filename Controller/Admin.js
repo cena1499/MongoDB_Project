@@ -2,6 +2,7 @@ const User = require("../model/User");
 const Book = require("../model/Book");
 const url = require("url");
 
+//Admin func to confirm new created user
 exports.confirmUser = async (req, res, next) => {
   const { confirmation, id } = req.body;
   if (confirmation !== null && id) {
@@ -15,7 +16,6 @@ exports.confirmUser = async (req, res, next) => {
                 res
                   .status("400")
                   .json({ message: "An error occurred", error: err.message });
-                process.exit(1);
               }
               res
                 .status("201")
@@ -36,6 +36,7 @@ exports.confirmUser = async (req, res, next) => {
   }
 };
 
+//Admin func for ban user
 exports.banUser = async (req, res, next) => {
   const { ban, id } = req.body;
   if (id) {
@@ -51,7 +52,7 @@ exports.banUser = async (req, res, next) => {
                   .json({ message: "An error occurred", error: err.message });
                 process.exit(1);
               }
-              res.status("201").json({ message: "Ban was successful", user });
+              res.status("201").json({ message: "User was banned", user });
             });
           } else {
             res.status(400).json({ message: "User is already banned" });
@@ -64,10 +65,11 @@ exports.banUser = async (req, res, next) => {
         });
     }
   } else {
-    res.status(400).json({ message: "Ban or Id not present" });
+    res.status(400).json({ message: "Id not present" });
   }
 };
 
+//Admin func to unbar user
 exports.unbanUser = async (req, res, next) => {
   const { ban, id } = req.body;
   if (id) {
@@ -83,7 +85,7 @@ exports.unbanUser = async (req, res, next) => {
                   .json({ message: "An error occurred", error: err.message });
                 process.exit(1);
               }
-              res.status("201").json({ message: "Unban was successful", user });
+              res.status("201").json({ message: "User was unbanned", user });
             });
           } else {
             res.status(400).json({ message: "User is not banned" });
@@ -96,10 +98,11 @@ exports.unbanUser = async (req, res, next) => {
         });
     }
   } else {
-    res.status(400).json({ message: "Ban or Id not present" });
+    res.status(400).json({ message: "Id not present" });
   }
 };
 
+//Admin func to get number of users who are registered, but not confirmed
 exports.getNumberOfUnconfirmedUsers = async (req, res, next) => {
   await User.find()
     .then((users) => {
@@ -114,6 +117,7 @@ exports.getNumberOfUnconfirmedUsers = async (req, res, next) => {
     );
 };
 
+//Admin func to filter users by firstname, lastname, address and personalID
 exports.getUsersByFilter = async (req, res, next) => {
   const regexFirstname = req.body.filterFirstName;
   const regexLastname = req.body.filterLastName;
@@ -156,48 +160,6 @@ exports.getUsersByFilter = async (req, res, next) => {
         return container;
       });
       res.status(200).json({ user: userFunction });
-    })
-    .catch((err) =>
-      res.status(401).json({ message: "Not successful", error: err.message })
-    );
-};
-
-exports.getBooksByFilter = async (req, res, next) => {
-  const regexName = req.body.filterName;
-  const regexAuthor = req.body.filterAuthor;
-  const regexYear = req.body.filterYear;
-  const sortByName = req.body.sortByName;
-  const sortByAuthor = req.body.sortByAuthor;
-  const sortByYear = req.body.sortByYear;
-
-  const container = {};
-
-  if (sortByName != 0) container.name = sortByName;
-  if (sortByAuthor != 0) container.author = sortByAuthor;
-  if (sortByYear != 0) container.year = sortByYear;
-
-  await Book.find({
-    name: { $regex: regexName, $options: "i" },
-    author: { $regex: regexAuthor, $options: "i" },
-    year: { $regex: regexYear, $options: "i" },
-  })
-    .collation({ locale: "en" })
-    .sort(container)
-    .then((books) => {
-      const bookFunction = books.map((book) => {
-        const container = {};
-        container.name = book.name;
-        container.author = book.author;
-        container.numberOfPages = book.numberOfPages;
-        container.year = book.year;
-        container.titlePageImage = book.titlePageImage;
-        container.coverImage = book.coverImage;
-        container.numberOfLicense = book.numberOfLicense;
-        container.numberOfLendLicense = book.numberOfLendLicense;
-        container.id = book._id;
-        return container;
-      });
-      res.status(200).json({ book: bookFunction });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })

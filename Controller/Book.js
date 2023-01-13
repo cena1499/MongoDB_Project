@@ -1,6 +1,7 @@
 const Book = require("../model/Book");
 const LendBook = require("../model/LendBook");
 
+//Func to get all books from DB
 exports.getBooks = async (req, res, next) => {
   var bookFunction;
   await Book.find({})
@@ -18,7 +19,6 @@ exports.getBooks = async (req, res, next) => {
         container.id = book._id;
         return container;
       });
-      //res.status(200).json({ book: bookFunction });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
@@ -29,12 +29,12 @@ exports.getBooks = async (req, res, next) => {
       bookID: book.id,
     });
     book.numberOfLicense = book.numberOfLicense - licence;
-    //console.log(book.numberOfLicense);
   }
 
   res.status(200).json({ book: bookFunction });
 };
 
+//Func to get all books from DB with set filter name, author or year
 exports.getBooksWithFilter = async (req, res, next) => {
   const regexName = req.body.filterName;
   const regexAuthor = req.body.filterAuthor;
@@ -59,7 +59,6 @@ exports.getBooksWithFilter = async (req, res, next) => {
     .sort(container)
     .then((books) => {
       bookFunction = books.map((book) => {
-        //VYRESIT POCET LICENCI
         const container = {};
         container.name = book.name;
         container.author = book.author;
@@ -72,7 +71,6 @@ exports.getBooksWithFilter = async (req, res, next) => {
         container.id = book._id;
         return container;
       });
-      //res.status(200).json({ book: bookFunction });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
@@ -88,6 +86,7 @@ exports.getBooksWithFilter = async (req, res, next) => {
   res.status(200).json({ book: bookFunction });
 };
 
+//Func to get detail about one book
 exports.getBook = async (req, res, next) => {
   const container = {};
 
@@ -115,6 +114,7 @@ exports.getBook = async (req, res, next) => {
   res.status(200).json({ book: container });
 };
 
+//Func to create new book
 exports.createBook = async (req, res, next) => {
   const {
     name,
@@ -151,6 +151,7 @@ exports.createBook = async (req, res, next) => {
     );
 };
 
+//Func to edit book
 exports.editBook = async (req, res, next) => {
   const {
     name,
@@ -172,7 +173,6 @@ exports.editBook = async (req, res, next) => {
       book.coverImage = coverImage;
       book.numberOfLicense = numberOfLicense;
       book.save((err) => {
-        //Monogodb error checker
         if (err) {
           res
             .status("400")
@@ -187,11 +187,9 @@ exports.editBook = async (req, res, next) => {
     );
 };
 
+//Func to delete book
 exports.deleteBook = async (req, res, next) => {
   const { id } = req.body;
-
-  const container = {};
-  var bookFunction;
 
   const lendLicences = await LendBook.countDocuments({
     bookID: id,
