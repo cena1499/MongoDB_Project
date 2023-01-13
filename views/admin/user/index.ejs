@@ -295,7 +295,6 @@
           }
 
           try {
-            //console.log(firstNameFilter.value); OK
             const res = await fetch("/api/auth/getUsersByFilter", {
               method: "POST",
               body: JSON.stringify({

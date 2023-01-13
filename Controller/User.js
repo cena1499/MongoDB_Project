@@ -236,7 +236,6 @@ exports.lendBook = async (req, res, next) => {
     //Add history
     await User.findById(idUser)
       .then((user) => {
-        console.log(container);
         user.history.push({
           name: container.name,
           author: container.author,

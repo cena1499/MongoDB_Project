@@ -67,21 +67,6 @@
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         display.textContent = "";
-        /*console.log(
-          nameBook.value +
-            " " +
-            author.value +
-            " " +
-            numberOfPages.value +
-            " " +
-            year.value +
-            " " +
-            titlePageImage.value.split(/(\\|\/)/g).pop() +
-            " " +
-            coverImage.value.split(/(\\|\/)/g).pop() +
-            " " +
-            numberOfLicense.value
-        );*/
         try {
           const res = await fetch("/api/auth/createBook", {
             method: "POST",

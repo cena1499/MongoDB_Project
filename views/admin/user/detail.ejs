@@ -195,7 +195,6 @@
             button.addEventListener("click", async () => {
               display.textContent = "";
               const id = dataBooks.book[i]._id;
-              console.log("dsads");
               const res = await fetch("/api/auth/returnBook", {
                 method: "PUT",
                 body: JSON.stringify({ idBook: id, idUser: data.user.id }),

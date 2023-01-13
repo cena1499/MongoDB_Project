@@ -72,9 +72,7 @@
           data.role === "Admin"
             ? location.assign("/admin")
             : location.assign("/user");
-        } catch (err) {
-          console.log(err.message);
-        }
+        } catch (err) {}
       });
     </script>
   </body>
