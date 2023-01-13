@@ -40,11 +40,39 @@ const UserSchema = new Mongoose.Schema({
   },
   history: [
     {
-      id: {
-        type: Object,
+      name: {
+        type: String,
         unique: false,
-        required: false,
-        default: false,
+        required: true,
+      },
+      author: {
+        type: String,
+        unique: false,
+        required: true,
+      },
+      numberOfPages: {
+        type: Number,
+        unique: false,
+        required: true,
+      },
+      year: {
+        type: String,
+        unique: false,
+        required: true,
+      },
+      titlePageImage: {
+        type: String,
+        unique: false,
+        required: true,
+      },
+      coverImage: {
+        type: String,
+        unique: false,
+        required: true,
+      },
+      time: {
+        type: Date,
+        default: Date.now,
       },
     },
   ],

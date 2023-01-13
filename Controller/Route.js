@@ -31,6 +31,7 @@ const {
   getUnLendBooks,
   getUnLendBooksWithFilter,
   getCountOfLendBooks,
+  getHistoryOfLendBooks,
 } = require("./User");
 
 const {
@@ -65,6 +66,7 @@ router.route("/deleteBook").delete(adminAuth, deleteBook);
 //User routes
 router.route("/getID").get(loginAuth, getID);
 router.route("/getCountOfLendBooks").get(loginAuth, getCountOfLendBooks);
+router.route("/getHistoryOfLendBooks").post(loginAuth, getHistoryOfLendBooks);
 
 router.route("/editUserByUser/:id").put(userAuth, editUserByUser);
 router.route("/lendBook").put(loginAuth, lendBook);

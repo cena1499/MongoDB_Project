@@ -10,6 +10,7 @@
     <div class="display" style="background-color: red"></div>
     <h1>User</h1>
     <%- include('../../partials/adminNavbar'); %>
+    <div class="history"></div>
     <ul></ul>
     <h3>Books</h3>
     <div class="books"></div>
@@ -47,6 +48,7 @@
       const ul = document.querySelector("ul");
       const booksDiv = document.querySelector(".books");
       const display = document.querySelector(".display");
+      let historyDiv = document.querySelector(".history");
 
       var count = 0;
       var id_user = "";
@@ -70,6 +72,13 @@
         const data = await res.json();
 
         id_user = data.user.id;
+        let a = document.createElement("a");
+        let linkText = document.createTextNode("History");
+        a.appendChild(linkText);
+        a.title = "my title text";
+        a.href = `/admin/history-user/${id_user}`;
+        historyDiv.appendChild(a);
+
         const resBooks = await fetch("/api/auth/getLendBooks", {
           method: "POST",
           body: JSON.stringify({
@@ -83,6 +92,7 @@
             dataBooks.error ? dataBooks.error : ""
           }`);
         }
+
         let li = `
               <li>
                 <b>Firstname</b> => ${data.user.firstname} <br> 

@@ -228,16 +228,62 @@ exports.lendBook = async (req, res, next) => {
       bookID: idBook,
       userID: idUser,
     })
-      .then((book) => {
+      /*.then((book) => {
         res.status(201).json({
           message: "Book successfully created",
         });
-      })
+      })*/
       .catch((error) =>
         res.status(400).json({
           message: "Book not successful created",
           error: error.message,
         })
+      );
+
+    const container = {};
+
+    await Book.findById(idBook)
+      .then((book) => {
+        container.name = book.name;
+        container.author = book.author;
+        container.numberOfPages = book.numberOfPages;
+        container.year = book.year;
+        container.titlePageImage = book.titlePageImage;
+        container.coverImage = book.coverImage;
+        container.numberOfLicense = book.numberOfLicense;
+        container.originalNumberOfLicense = book.numberOfLicense;
+        container.id = book._id;
+      })
+      .catch((err) =>
+        res.status(401).json({ message: "Not successful", error: err.message })
+      );
+
+    await User.findById(idUser)
+      .then((user) => {
+        console.log(container);
+        user.history.push({
+          name: container.name,
+          author: container.author,
+          numberOfPages: container.numberOfPages,
+          year: container.year,
+          titlePageImage: container.titlePageImage,
+          coverImage: container.coverImage,
+        });
+        user.save((err) => {
+          //Monogodb error checker
+          if (err) {
+            res
+              .status("400")
+              .json({ message: "An error occurred", error: err.message });
+            process.exit(1);
+          }
+          res.status(201).json({
+            message: "Book successfully created",
+          });
+        });
+      })
+      .catch((err) =>
+        res.status(401).json({ message: "Not successful", error: err.message })
       );
 
     /*
@@ -563,4 +609,17 @@ exports.getCountOfLendBooks = async (req, res, next) => {
       }
     });
   }
+};
+
+exports.getHistoryOfLendBooks = async (req, res, next) => {
+  const { id } = req.body;
+
+  //LendBooks
+  await User.findById({ _id: id })
+    .then((user) => {
+      res.status(200).json({ book: user.history });
+    })
+    .catch((err) =>
+      res.status(401).json({ message: "Error", error: err.message })
+    );
 };

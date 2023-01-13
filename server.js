@@ -42,6 +42,11 @@ app.get("/admin/detail-user/:id", adminAuth, (req, res) =>
 app.get("/admin/edit-user/:id", adminAuth, (req, res) =>
   res.render("admin/user/edit")
 );
+
+app.get("/admin/history-user/:id", adminAuth, (req, res) =>
+  res.render("admin/user/history")
+);
+
 app.get("/admin/create-book", adminAuth, (req, res) =>
   res.render("admin/book/create")
 );
@@ -64,6 +69,9 @@ app.get("/user/detail-book/:id", userAuth, (req, res) =>
 );
 app.get("/user/my-books", userAuth, (req, res) =>
   res.render("user/book/lendBook")
+);
+app.get("/user/my-history", userAuth, (req, res) =>
+  res.render("user/book/history")
 );
 
 //Render Views

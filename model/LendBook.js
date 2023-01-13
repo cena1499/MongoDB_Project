@@ -11,16 +11,11 @@ const LendBookSchema = new Mongoose.Schema({
     unique: false,
     required: true,
   },
-  createAt: {
+  expiredAt: {
     type: Date,
-    //Zmenit expiraci na produkci
-    expires: 600,
+    expires: 6 * 24 * 60 * 60 * 1000,
+    default: Date.now,
   },
-  /*expireAt: {
-    type: Date,
-    default: Date.now() + 6 * 24 * 60 * 60 * 1000,
-    required: true,
-  },*/
 });
 
 const LendBook = Mongoose.model("lendBook", LendBookSchema);
