@@ -117,7 +117,6 @@
                   ? ` <button class="ban">Ban user</button>`
                   : `<button class="ban">Unban user</button>`
               }
-              <button class="delete">Delete User</button>
               `;
         ul.innerHTML += li;
 
@@ -184,6 +183,7 @@
                     <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
 
                     <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br>
+                    <b>Expiration</b> => ${mappedBook.expire} <br>
                   </li>
                   <a href="/admin/detail-book/${mappedBook._id}">Detail</a>
                   <button class="return">Return Book</button>

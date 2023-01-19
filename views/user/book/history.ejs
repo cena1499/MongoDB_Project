@@ -44,10 +44,14 @@
                     <b>Author</b> => ${mappedBook.author} <br>
                     <b>Number of pages</b> => ${mappedBook.numberOfPages} <br>
                     <b>Year</b> => ${mappedBook.year} <br>
-                    <b>Titlepage image</b> => <img src="${mappedBook.titlePageImage}"> <br>
-                    <b>Coverpage image</b> => <img src="${mappedBook.coverImage}"> <br>
+                    <b>Titlepage image</b> => <img src="${
+                      mappedBook.titlePageImage
+                    }"> <br>
+                    <b>Coverpage image</b> => <img src="${
+                      mappedBook.coverImage
+                    }"> <br>
 
-                    <b>Number o licenses</b> => ${mappedBook.time} <br>
+                    <b>Time </b> => ${mappedBook.time.substring(0, 10)} <br>
                   </li>
                   `;
           ul.innerHTML += li;

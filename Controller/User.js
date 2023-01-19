@@ -294,13 +294,54 @@ exports.getLendBooks = async (req, res, next) => {
     lendBooksId.push(book.bookID);
   });
 
-  await Book.find({ _id: { $in: lendBooksId } })
+  /*await Book.find({ _id: { $in: lendBooksId } })
     .then((books) => {
       res.status(200).json({ book: books });
     })
     .catch((err) =>
       res.status(401).json({ message: "Not successful", error: err.message })
+    );*/
+
+  const container = {};
+  var bookFunction;
+
+  await Book.find({ _id: { $in: lendBooksId } })
+    .then((books) => {
+      bookFunction = books.map((book) => {
+        const container = {};
+        container.name = book.name;
+        container.author = book.author;
+        container.numberOfPages = book.numberOfPages;
+        container.year = book.year;
+        container.titlePageImage = book.titlePageImage;
+        container.coverImage = book.coverImage;
+        container.numberOfLicense = book.numberOfLicense;
+        container.expired = Date.now();
+        container.id = book._id;
+        return container;
+      });
+    })
+    .catch((err) =>
+      res.status(401).json({ message: "Not successful", error: err.message })
     );
+
+  for (const book of bookFunction) {
+    const licence = await LendBook.countDocuments({
+      bookID: book.id,
+    });
+    const expire = await LendBook.findOne({ userID: id, bookID: book.id });
+    book.numberOfLicense = book.numberOfLicense - licence;
+    book.expire =
+      expire.expiredAt.toString().substring(4, 7) +
+      " " +
+      (parseInt(expire.expiredAt.toString().substring(8, 10)) + 6).toString() +
+      " " +
+      expire.expiredAt.toString().substring(11, 15) +
+      " " +
+      expire.expiredAt.toString().substring(16, 21);
+  }
+
+  res.status(200).json({ book: bookFunction });
 };
 
 //Func to get all unlend books from one user
