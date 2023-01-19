@@ -6,49 +6,66 @@
     <title>User create</title>
   </head>
   <body>
-    <h1>Edit book Page</h1>
-    <%- include('../../partials/adminNavbar'); %>
-    <form enctype="multipart/form-data">
-      <div class="error" style="background-color: red"></div>
-      <br />
-
-      <label for="name">Name</label><br />
-      <input type="text" id="name" required /><br />
-
-      <label for="author">Author</label><br />
-      <input type="text" id="author" required /><br />
-
-      <label for="numberOfPages">Number of pages</label><br />
-      <input type="text" id="numberOfPages" required /><br />
-
-      <label for="year">Year</label><br />
-      <input type="text" id="year" required /><br />
-
-      <input
-        type="text"
-        id="titlePageImage"
-        onkeyup="showTitlePageImage()"
-        required
-      /><br />
-
-      <div id="showTitlePageImage"></div>
-
-      <label for="coverImage">Image URL of cover</label><br />
-      <input
-        type="text"
-        id="coverImage"
-        onkeyup="showCoverImage()"
-        required
-      /><br />
-
-      <div id="showCoverImage"></div>
-
-      <label for="numberOfLicense">Number of licenses</label><br />
-      <input type="text" id="numberOfLicense" required /><br />
-
-      <input type="submit" value="edit book" required /><br />
-    </form>
-
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">Edit book Page</h1>
+      <%- include('../../partials/adminNavbar'); %>
+      <form>
+        <div class="error" style="background-color: red"></div>
+        <div class="form-group">
+          <label for="firstname">Name</label>
+          <input type="text" id="name" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="lastname">Author</label>
+          <input type="text" id="author" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="personalID">Number of pages</label>
+          <input type="text" id="numberOfPages" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="address">Year</label>
+          <input type="text" id="year" class="form-control" required />
+        </div>
+        <div class="form-group">
+          <label for="username">Title Page</label>
+          <input
+            type="text"
+            id="titlePageImage"
+            class="form-control"
+            onkeyup="showTitlePageImage()"
+            required
+          />
+          <br />
+          <div id="showTitlePageImage"></div>
+        </div>
+        <div class="form-group">
+          <label for="username">Image Cover</label>
+          <input
+            type="text"
+            id="coverImage"
+            class="form-control"
+            onkeyup="showCoverImage()"
+            required
+          />
+          <br />
+          <div id="showCoverImage"></div>
+        </div>
+        <div class="form-group">
+          <label for="personalID">Number of licenses</label>
+          <input
+            type="text"
+            id="numberOfLicense"
+            class="form-control"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block my-2">
+          Edit
+        </button>
+      </form>
+    </div>
     <script>
       const form = document.querySelector("form");
       const nameBook = document.querySelector("#name");
@@ -93,6 +110,7 @@
         e.preventDefault();
         display.textContent = "";
         try {
+          console.log(numberOfLicense.value);
           const res = await fetch(`/api/auth/editBook/${url.slice(-1).pop()}`, {
             method: "PUT",
             body: JSON.stringify({

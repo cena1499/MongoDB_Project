@@ -7,11 +7,12 @@
     <title>Admin page</title>
   </head>
   <body>
-    <div class="display" style="background-color: red"></div>
-    <h1>My Books</h1>
-    <%- include('../../partials/userNavbar'); %>
-
-    <ul></ul>
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">Lended Books</h1>
+      <%- include('../../partials/userNavbar'); %>
+      <ul></ul>
+    </div>
     <script>
       var id_user = "";
 
@@ -59,7 +60,7 @@
           returnBook.forEach((button, i) => {
             button.addEventListener("click", async () => {
               display.textContent = "";
-              const id = data.book[i]._id;
+              const id = data.book[i].id;
               const res = await fetch("/api/auth/returnBook", {
                 method: "PUT",
                 body: JSON.stringify({ idBook: id, idUser: id_user }),

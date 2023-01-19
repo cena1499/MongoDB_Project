@@ -265,7 +265,6 @@ exports.lendBook = async (req, res, next) => {
 //Func to return book from lended books
 exports.returnBook = async (req, res, next) => {
   const { idBook, idUser } = req.body;
-
   await LendBook.findOne({ userID: idUser, bookID: idBook })
     .then((book) => {
       book.remove();
@@ -294,15 +293,6 @@ exports.getLendBooks = async (req, res, next) => {
     lendBooksId.push(book.bookID);
   });
 
-  /*await Book.find({ _id: { $in: lendBooksId } })
-    .then((books) => {
-      res.status(200).json({ book: books });
-    })
-    .catch((err) =>
-      res.status(401).json({ message: "Not successful", error: err.message })
-    );*/
-
-  const container = {};
   var bookFunction;
 
   await Book.find({ _id: { $in: lendBooksId } })

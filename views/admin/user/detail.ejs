@@ -7,42 +7,84 @@
     <title>Admin page</title>
   </head>
   <body>
-    <div class="display" style="background-color: red"></div>
-    <h1>User</h1>
-    <%- include('../../partials/adminNavbar'); %>
-    <div class="history"></div>
-    <ul></ul>
-    <h3>Books</h3>
-    <div class="books"></div>
-    <hr />
-    <h3>Unlend books</h3>
-    <form id="formFirstName">
-      <label for="name">Name filter</label><br />
-      <input type="text" id="name" /><br />
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">User</h1>
+      <%- include('../../partials/adminNavbar'); %>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 mx-auto">
+            <div class="history"></div>
+            <ul></ul>
+            <h3 class="text-center my-5">Books</h3>
+            <div class="books"></div>
+            <hr />
+            <h3 class="text-center my-5">Unlend books</h3>
+            <form id="formFirstName">
+              <div class="form-group">
+                <label for="name">Name filter</label>
+                <input type="text" id="name" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="author">Author filter</label>
+                <input type="text" id="author" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="year">Year filter</label>
+                <input type="text" id="year" class="form-control" />
+              </div>
+              <div class="form-group" id="filterSort"></div>
+              <div class="d-flex justify-content-center my-2">
+                <button
+                  type="button"
+                  class="btn btn-primary mx-2"
+                  onclick="setNameByAsc()"
+                >
+                  Name <i class="fas fa-arrow-up"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary mx-2"
+                  onclick="setNameByDesc()"
+                >
+                  Name <i class="fas fa-arrow-down"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary mx-2"
+                  onclick="setAuthorByAsc()"
+                >
+                  Author <i class="fas fa-arrow-up"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary mx-2"
+                  onclick="setAuthorByDesc()"
+                >
+                  Author <i class="fas fa-arrow-down"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary mx-2"
+                  onclick="setYearByAsc()"
+                >
+                  Year <i class="fas fa-arrow-up"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary mx-2"
+                  onclick="setYearByDesc()"
+                >
+                  Year <i class="fas fa-arrow-down"></i>
+                </button>
+              </div>
+            </form>
+            <ul class="unLendBooks"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <label for="author">Author filter</label><br />
-      <input type="text" id="author" /><br />
-
-      <label for="year">Year filter</label><br />
-      <input type="text" id="year" /><br />
-
-      <div id="filterSort"></div>
-
-      <button type="button" onclick="setNameByAsc()">Name Sort ASC</button>
-      <button type="button" onclick="setNameByDesc()">Name Sort DESC</button>
-      <br />
-      <button type="button" onclick="setAuthorByAsc()">Author Sort ASC</button>
-      <button type="button" onclick="setAuthorByDesc()">
-        Author Sort DESC
-      </button>
-      <br />
-
-      <button type="button" onclick="setYearByAsc()">Year Sort ASC</button>
-      <button type="button" onclick="setYearByDesc()">Year Sort DESC</button>
-
-      <br />
-    </form>
-    <ul class="unLendBooks"></ul>
     <script>
       const ul = document.querySelector("ul");
       const booksDiv = document.querySelector(".books");
@@ -185,7 +227,7 @@
                     <b>Number o licenses</b> => ${mappedBook.numberOfLicense} <br>
                     <b>Expiration</b> => ${mappedBook.expire} <br>
                   </li>
-                  <a href="/admin/detail-book/${mappedBook._id}">Detail</a>
+                  <a href="/admin/detail-book/${mappedBook.id}">Detail</a>
                   <button class="return">Return Book</button>
                   `;
           booksDiv.innerHTML += div;
@@ -194,7 +236,7 @@
           returnBook.forEach((button, i) => {
             button.addEventListener("click", async () => {
               display.textContent = "";
-              const id = dataBooks.book[i]._id;
+              const id = dataBooks.book[i].id;
               const res = await fetch("/api/auth/returnBook", {
                 method: "PUT",
                 body: JSON.stringify({ idBook: id, idUser: data.user.id }),

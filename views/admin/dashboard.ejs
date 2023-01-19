@@ -7,11 +7,12 @@
     <title>Admin page</title>
   </head>
   <body>
-    <div class="display" style="background-color: red"></div>
-    <h1>Admin dashboard</h1>
-    <%- include('../partials/adminNavbar'); %>
-    <div class="counter"></div>
-
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">Admin dashboard</h1>
+      <%- include('../partials/adminNavbar'); %>
+      <div class="counter"></div>
+    </div>
     <script>
       const div = document.querySelector(".counter");
       const display = document.querySelector(".display");
@@ -31,7 +32,5 @@
       };
       getCount();
     </script>
-
-    <%- include('../partials/bootstrap'); %>
   </body>
 </html>

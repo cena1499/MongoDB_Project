@@ -125,7 +125,6 @@ exports.createBook = async (req, res, next) => {
     coverImage,
     numberOfLicense,
   } = req.body;
-
   const numberOfLendLicense = numberOfLicense;
 
   await Book.create({

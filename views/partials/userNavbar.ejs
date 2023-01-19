@@ -1,15 +1,26 @@
-<div class="edit"></div>
-<a href="/user/books/">Books</a>
-<a href="/user/my-books/">Lend books</a>
-<a href="/user/my-history/">History</a>
-<button class="logout"><a href="/logout">Log Out</a></button>
+<%- include('../partials/bootstrap'); %>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="edit"></div>
+  <a class="nav-link link-secondary" href="/user/books/">Books</a>
+  <a class="nav-link link-secondary" href="/user/my-books/">Lended books</a>
+  <a class="nav-link link-secondary" href="/user/my-history/">History</a>
+  <div class="ms-auto mx-3">
+    <div class="btn-nav">
+      <a class="btn btn-secondary btn-small navbar-btn" href="/logout"
+        >Logout</a
+      >
+    </div>
+  </div>
+  <div class="edit"></div>
+</nav>
+
 <script>
   const edit = document.querySelector(".edit");
   const getID = async () => {
     const res = await fetch(`/api/auth/getID`);
     const data = await res.json();
     let div = `
-        <a href="/user/edit-user/${data.user}">Edit my profile</a>
+        <a class="nav-link link-secondary" href="/user/edit-user/${data.user}">Edit Profile</a>
     `;
     edit.innerHTML += div;
   };

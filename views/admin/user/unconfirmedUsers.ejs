@@ -7,10 +7,13 @@
     <title>Admin page</title>
   </head>
   <body>
-    <div class="display" style="background-color: red"></div>
-    <h1>Unconfirmed users</h1>
-    <%- include('../../partials/adminNavbar'); %>
-    <ul></ul>
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">Unconfirmed users</h1>
+      <%- include('../../partials/adminNavbar'); %>
+      <div class="counter"></div>
+      <ul></ul>
+    </div>
     <script>
       const ul = document.querySelector("ul");
       const display = document.querySelector(".display");

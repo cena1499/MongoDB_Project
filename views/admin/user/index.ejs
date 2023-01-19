@@ -7,57 +7,92 @@
     <title>Admin page</title>
   </head>
   <body>
-    <div class="display" style="background-color: red"></div>
-    <h1>Users</h1>
-    <%- include('../../partials/adminNavbar'); %>
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">Users</h1>
+      <%- include('../../partials/adminNavbar'); %>
+      <div class="col-lg-10 mx-auto">
+        <form id="formFirstName" class="my-5">
+          <div class="form-group">
+            <label for="filterFirstname">Firstname</label>
+            <input type="text" id="filterFirstname" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="filterLastname">Lastname</label>
+            <input type="text" id="filterLastname" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="filterAddress">Address</label>
+            <input type="text" id="filterAddress" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="filterPersonalID">PersonalID</label>
+            <input type="text" id="filterPersonalID" class="form-control" />
+          </div>
+          <div class="form-group" id="filterSort"></div>
 
-    <form id="formFirstName">
-      <label for="filterFirstname">Firstname filter</label><br />
-      <input type="text" id="filterFirstname" /><br />
-
-      <label for="filterLastname">Lastname filter</label><br />
-      <input type="text" id="filterLastname" /><br />
-
-      <label for="filterAddress">Address filter</label><br />
-      <input type="text" id="filterAddress" /><br />
-
-      <label for="filterPersonalID">PersonalID filter</label><br />
-      <input type="text" id="filterPersonalID" /><br />
-
-      <div id="filterSort"></div>
-
-      <button type="button" onclick="setFirstNameByAsc()">
-        Firstname Sort ASC
-      </button>
-      <button type="button" onclick="setFirstNameByDesc()">
-        Firstname Sort DESC
-      </button>
-      <br />
-      <button type="button" onclick="setLastNameByAsc()">
-        Lastname Sort ASC
-      </button>
-      <button type="button" onclick="setLastNameByDesc()">
-        Lastname Sort DESC
-      </button>
-      <br />
-
-      <button type="button" onclick="setAddresByAsc()">Address Sort ASC</button>
-      <button type="button" onclick="setAddresByDesc()">
-        Address Sort DESC
-      </button>
-      <br />
-
-      <button type="button" onclick="setPersonalIDByAsc()">
-        PersonalID Sort ASC
-      </button>
-      <button type="button" onclick="setPersonalIDByDesc()">
-        PersonalID Sort DESC
-      </button>
-
-      <br />
-    </form>
-
-    <ul></ul>
+          <div class="d-flex justify-content-center my-2">
+            <button
+              type="button"
+              class="btn btn-primary mx-2"
+              onclick="setFirstNameByAsc()"
+            >
+              Firstname <i class="fas fa-arrow-up"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary mx-2"
+              onclick="setFirstNameByDesc()"
+            >
+              Firstname <i class="fas fa-arrow-down"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary mx-2"
+              onclick="setLastNameByAsc()"
+            >
+              Lastname <i class="fas fa-arrow-up"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary mx-2"
+              onclick="setLastNameByDesc()"
+            >
+              Lastname <i class="fas fa-arrow-down"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary mx-2"
+              onclick="setAddresByAsc()"
+            >
+              Address <i class="fas fa-arrow-up"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary mx-2"
+              onclick="setAddresByDesc()"
+            >
+              Address <i class="fas fa-arrow-down"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary mx-2"
+              onclick="setPersonalIDByAsc()"
+            >
+              PersonalID <i class="fas fa-arrow-up"></i>
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary mx-2"
+              onclick="setPersonalIDByDesc()"
+            >
+              PersonalID <i class="fas fa-arrow-down"></i>
+            </button>
+          </div>
+        </form>
+        <ul class="list-group"></ul>
+      </div>
+    </div>
     <script>
       const ul = document.querySelector("ul");
       const display = document.querySelector(".display");

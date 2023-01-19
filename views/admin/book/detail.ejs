@@ -7,10 +7,12 @@
     <title>Admin page</title>
   </head>
   <body>
-    <div class="display" style="background-color: red"></div>
-    <h1>Book</h1>
-    <%- include('../../partials/adminNavbar'); %>
-    <ul></ul>
+    <div class="container">
+      <div class="display" style="background-color: red"></div>
+      <h1 class="text-left my-5">Book</h1>
+      <%- include('../../partials/adminNavbar'); %>
+      <ul></ul>
+    </div>
     <script>
       const ul = document.querySelector("ul");
       const display = document.querySelector(".display");
